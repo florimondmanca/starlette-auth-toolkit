@@ -64,7 +64,7 @@ class BaseSchemeAuthBackend(AuthBackend):
         raise NotImplementedError
 
 
-class BasicAuthBackend(BaseSchemeAuthBackend):
+class BaseBasicAuthBackend(BaseSchemeAuthBackend):
     scheme = "basic"
 
     async def verify(self, credentials: str) -> typing.Optional[BaseUser]:
@@ -80,7 +80,7 @@ class BasicAuthBackend(BaseSchemeAuthBackend):
         raise NotImplementedError
 
 
-class BearerTokenAuthBackend(BaseSchemeAuthBackend):
+class BaseBearerTokenAuthBackend(BaseSchemeAuthBackend):
     scheme = "bearer"
 
     class InvalidCredentials(AuthenticationError):
@@ -93,7 +93,7 @@ class BearerTokenAuthBackend(BaseSchemeAuthBackend):
         raise NotImplementedError
 
 
-class APIKeyAuthBackend(AuthBackend):
+class BaseAPIKeyAuthBackend(AuthBackend):
     def __init__(self, *, header: str = None, query_param: str = None):
         if not bool(header) ^ bool(query_param):
             raise ValueError(
