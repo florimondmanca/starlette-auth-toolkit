@@ -26,7 +26,10 @@ setup(
     version=get_version(),
     author="Florimond Manca",
     author_email="florimond.manca@gmail.com",
-    description="Authentication toolkit for Starlette",
+    description=(
+        "Authentication backends and helpers for "
+        "Starlette-based apps and frameworks"
+    ),
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/florimondmanca/starlette-auth-toolkit.git",

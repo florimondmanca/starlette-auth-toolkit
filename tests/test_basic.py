@@ -14,7 +14,7 @@ PASSWORD = "s3kr3t"
 
 
 class BasicAuthBackend(BaseBasicAuthBackend):
-    async def check_user(
+    async def verify(
         self, username: str, password: str
     ) -> typing.Optional[SimpleUser]:
         if (username, password) == (USERNAME, PASSWORD):

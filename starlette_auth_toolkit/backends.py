@@ -41,40 +41,40 @@ class BaseSchemeAuthBackend(AuthBackend):
         if scheme.lower() != self.scheme:
             return None
 
-        return self.decode_credentials(credentials)
-
-    def decode_credentials(self, credentials: str) -> str:
         try:
             return base64.b64decode(credentials).decode("ascii")
         except (ValueError, UnicodeDecodeError, binascii.Error):
             raise self.invalid_credentials()
+
+    def parse_credentials(self, credentials: str) -> tuple:
+        return (credentials,)
 
     async def authenticate(self, conn: HTTPConnection):
         credentials = self.get_credentials(conn)
         if credentials is None:
             return None
 
-        user = await self.verify(credentials)
+        parts = self.parse_credentials(credentials)
+        user = await self.verify(*parts)
         if user is None:
             raise self.invalid_credentials()
 
         return AuthCredentials(["authenticated"]), user
 
-    async def verify(self, credentials: str) -> typing.Optional[BaseUser]:
-        raise NotImplementedError
+    verify: typing.Callable[..., typing.Awaitable[typing.Optional[BaseUser]]]
 
 
 class BaseBasicAuthBackend(BaseSchemeAuthBackend):
     scheme = "basic"
 
-    async def verify(self, credentials: str) -> typing.Optional[BaseUser]:
+    def parse_credentials(self, credentials: str) -> typing.Tuple[str, str]:
         try:
             username, password = credentials.split(":")
         except ValueError:
             raise self.invalid_credentials()
-        return await self.check_user(username, password)
+        return username, password
 
-    async def check_user(
+    async def verify(
         self, username: str, password: str
     ) -> typing.Optional[BaseUser]:
         raise NotImplementedError
@@ -83,13 +83,7 @@ class BaseBasicAuthBackend(BaseSchemeAuthBackend):
 class BaseBearerTokenAuthBackend(BaseSchemeAuthBackend):
     scheme = "bearer"
 
-    class InvalidCredentials(AuthenticationError):
-        pass
-
-    async def verify(self, credentials: str) -> typing.Optional[BaseUser]:
-        return await self.check_token(token=credentials)
-
-    async def check_token(self, token: str) -> typing.Optional[BaseUser]:
+    async def verify(self, token: str) -> typing.Optional[BaseUser]:
         raise NotImplementedError
 
 
