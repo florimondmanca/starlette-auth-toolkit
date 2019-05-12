@@ -20,9 +20,13 @@ pip install starlette-auth-toolkit
 
 ## Base backends
 
-Base backends implement an authentication flow, but leave the implementation of credentials verification up to you: database query, environment variables, private files, etc.
+Base backends implement an **authentication flow**, but **the exact implementation of credentials verification is left up to you**. You can choose to perform a database query, use environment variables or private files, etc.
 
-**Note**: please refer to the [Starlette authentication documentation](https://www.starlette.io/authentication/) for general information on using Starlette authentication backends and the `AuthenticationMiddleware`.
+Base backends are user model agnostic, although we recommend you use a subclass of `starlette.authentication.BaseUser`.
+
+The documentation below lists which [scopes](https://www.starlette.io/authentication/#authcredentials) each backend grants when authentication succeeds.
+
+Please refer to the [Starlette authentication documentation](https://www.starlette.io/authentication/) for more information on Starlette's authentication and permissions interface.
 
 ### [Basic auth](https://tools.ietf.org/html/rfc7617)
 
@@ -30,7 +34,11 @@ Base backends implement an authentication flow, but leave the implementation of 
 
 - `.verify(self, username: str, password: str) -> Optional[BaseUser]`
 
-  If `username` and `password` are valid, return the corresponding Starlette `BaseUser` instance (or a subclass thereof). Otherwise, return `None`.
+  If `username` and `password` are valid, return the corresponding user. Otherwise, return `None`.
+
+**Scopes**
+
+- `authenticated`
 
 **Example**
 
