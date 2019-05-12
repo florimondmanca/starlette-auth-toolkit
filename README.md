@@ -61,7 +61,7 @@ Want to contribute? Awesome! Be sure to read our [Contributing guidelines](https
 
 ## Changelog
 
-See [CHANGELOG.md](https://github.com/florimondmanca/tree/master/CHANGELOG.md).
+See [CHANGELOG.md](https://github.com/florimondmanca/starlette-auth-toolkit/tree/master/CHANGELOG.md).
 
 ## License
 
