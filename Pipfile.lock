@@ -1,0 +1,25 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "4d7a00ea3d482e5140f79d78c369bdd5ef8fec5905185082336a1e0edc09f897"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "starlette-auth-toolkit": {
+            "editable": true,
+            "path": "."
+        }
+    },
+    "develop": {}
+}
