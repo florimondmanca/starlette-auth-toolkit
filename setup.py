@@ -34,7 +34,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=DEPENDENCIES,
-    extras_require={"dev": ["starlette>=0.11", "pytest"]},
+    extras_require={"dev": ["starlette>=0.11", "pytest", "requests"]},
     python_requires=">=3.6",
     # license and classifier list:
     # https://pypi.org/pypi?%3Aaction=list_classifiers
