@@ -4,10 +4,13 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+### [v0.1.0] - 2019-05-12
+
 ### Added
 
 - Basic auth base backend.
 - Changelog.
 - License.
 
-[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/48b5ffd...HEAD
+[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.1.0...HEAD
+[v0.1.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/48b5ffd...v0.1.0
