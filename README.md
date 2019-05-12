@@ -1,33 +1,41 @@
 # starlette-auth-toolkit
 
+[![travis](https://img.shields.io/travis/florimondmanca/starlette-auth-toolkit.svg)](https://travis-ci.org/florimondmanca/starlette-auth-toolkit)
+[![black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
+![python](https://img.shields.io/pypi/pyversions/starlette-auth-toolkit.svg)
+[![pypi](https://img.shields.io/pypi/v/starlette-auth-toolkit.svg)](https://pypi.org/project/starlette-auth-toolkit)
+![license](https://img.shields.io/badge/license-MIT-green.svg)
+
 Authentication backends and helpers for Starlette-based apps and frameworks.
 
 **Note**: documentation is in progress — in the meantime, feel free to read the source code!
 
 ## Installation
 
-> TODO
+```bash
+pip install starlette-auth-toolkit
+```
 
-## Usage
+**Note**: you need to [install Starlette](https://www.starlette.io/#installation) yourself.
 
-### Base backends
+## Base backends
 
-Base backends implement an authentication flow, but leave the verification of credentials up to you. This means you can use them to perform verification against any credentials storage backend, e.g. a database, environment variables, a private file, etc.
+Base backends implement an authentication flow, but leave the implementation of credentials verification up to you: database query, environment variables, private files, etc.
 
-**Note**: please refer to the [Starlette authentication documentation](https://www.starlette.io/authentication/) for general information on using Starlette authentication backends.
+**Note**: please refer to the [Starlette authentication documentation](https://www.starlette.io/authentication/) for general information on using Starlette authentication backends and the `AuthenticationMiddleware`.
 
-#### [Basic auth](https://tools.ietf.org/html/rfc7617)
+### [Basic auth](https://tools.ietf.org/html/rfc7617)
 
 **Abstract methods**
 
-- `.verify(username: str, password: str) -> Optional[BaseUser]`
+- `.verify(self, username: str, password: str) -> Optional[BaseUser]`
 
   If `username` and `password` are valid, return the corresponding Starlette `BaseUser` instance (or a subclass thereof). Otherwise, return `None`.
 
-**Example usage**
+**Example**
 
 ```python
-# myapp/backends.py
+# myapp/auth.py
 from starlette.authentication import SimpleUser  # or a custom user model
 from starlette_auth_toolkit.backends import BaseBasicAuthBackend
 
@@ -38,6 +46,10 @@ class BasicAuthBackend(BaseBasicAuthBackend):
             return None
         return SimpleUser(username)
 ```
+
+## Contributing
+
+Want to contribute? Awesome! Be sure to read our [Contributing guidelines](https://github.com/florimondmanca/starlette-auth-toolkit/tree/master/CONTRIBUTING.md).
 
 ## Changelog
 

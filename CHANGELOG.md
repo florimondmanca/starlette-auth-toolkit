@@ -8,8 +8,15 @@ All notable changes to this project are documented here. The format of this docu
 
 ### Added
 
+Features:
+
 - Basic auth base backend.
+
+Meta:
+
+- CI/CD pipeline.
 - Changelog.
+- Contributing guidelines.
 - License.
 
 [unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.1.0...HEAD
