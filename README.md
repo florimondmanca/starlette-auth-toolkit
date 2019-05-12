@@ -39,6 +39,10 @@ class BasicAuthBackend(BaseBasicAuthBackend):
         return SimpleUser(username)
 ```
 
+## Changelog
+
+See [CHANGELOG.md](https://github.com/florimondmanca/tree/master/CHANGELOG.md).
+
 ## License
 
 MIT
