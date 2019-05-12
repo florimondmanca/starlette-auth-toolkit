@@ -1,3 +1,3 @@
-# starlette_auth_toolkit
+# starlette-auth-toolkit
 
-Authentication toolkit for Starlette
+Authentication toolkit for Starlette.

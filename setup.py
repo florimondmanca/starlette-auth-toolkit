@@ -22,7 +22,7 @@ def get_version():
 
 
 setup(
-    name="starlette_auth_toolkit",
+    name="starlette-auth-toolkit",
     version=get_version(),
     author="Florimond Manca",
     author_email="florimond.manca@gmail.com",
@@ -34,6 +34,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=DEPENDENCIES,
+    extras_require={"dev": ["starlette>=0.11", "pytest"]},
     python_requires=">=3.6",
     # license and classifier list:
     # https://pypi.org/pypi?%3Aaction=list_classifiers
