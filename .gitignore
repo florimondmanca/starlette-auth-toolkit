@@ -16,3 +16,4 @@ var/
 *.eggs
 .mypy_cache/
 .vscode
+*.sqlite

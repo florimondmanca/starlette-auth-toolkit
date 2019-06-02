@@ -132,4 +132,4 @@ class MultiAuthBackend(AuthBackend):
 
             return auth_result
 
-        raise self.invalid_credentials()
+        return None
