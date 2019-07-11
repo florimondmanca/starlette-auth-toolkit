@@ -2,6 +2,7 @@ import base64
 import binascii
 import inspect
 import typing
+import operator
 import importlib
 
 from starlette.authentication import (
@@ -90,17 +91,18 @@ class BaseBearerTokenAuthBackend(BaseSchemeAuthBackend):
 
 class BaseAPIKeyAuthBackend(AuthBackend):
     def __init__(self, *, header: str = None, query_param: str = None):
-        if not bool(header) ^ bool(query_param):
-            raise ValueError(
-                "exactly one of `header=` or `query_param=` must be set"
-            )
-        if header:
-            self.get_api_key = lambda conn: conn.headers.get(header)
+        if header is not None:
+            self._key_getter = lambda conn: conn.headers.get(header)
+        elif query_param is not None:
+            self._key_getter = lambda conn: conn.query_param.get(query_param)
         else:
-            self.get_api_key = lambda conn: conn.query_param.get(query_param)
+            raise ValueError("expected 'header' or 'query_param' to be given")
+
+    async def get_api_key(self, conn: HTTPConnection) -> typing.Optional[str]:
+        return self._key_getter(conn)
 
     async def authenticate(self, conn: HTTPConnection) -> AuthResult:
-        api_key: typing.Optional[str] = self.get_api_key(conn)
+        api_key = self.get_api_key(conn)
         if api_key is None:
             return None
 
