@@ -1,10 +1,9 @@
 # starlette-auth-toolkit
 
 [![travis](https://img.shields.io/travis/florimondmanca/starlette-auth-toolkit.svg)](https://travis-ci.org/florimondmanca/starlette-auth-toolkit)
-[![black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
+[![pypi](https://badge.fury.io/py/starlette-auth-toolkit.svg)](https://pypi.org/project/starlette-auth-toolkit)
 ![python](https://img.shields.io/pypi/pyversions/starlette-auth-toolkit.svg)
-[![pypi](https://img.shields.io/pypi/v/starlette-auth-toolkit.svg)](https://pypi.org/project/starlette-auth-toolkit)
-![license](https://img.shields.io/badge/license-MIT-green.svg)
+[![black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
 
 Authentication backends and helpers for Starlette-based apps and frameworks.
 
