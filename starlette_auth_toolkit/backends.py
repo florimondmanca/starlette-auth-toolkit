@@ -1,49 +1,41 @@
 import base64
 import binascii
+import importlib
 import inspect
 import typing
-import importlib
 
-from starlette.authentication import (
-    AuthCredentials,
-    AuthenticationBackend,
-    AuthenticationError,
-    BaseUser,
-    UnauthenticatedUser,
-)
+from starlette import authentication as auth
 from starlette.requests import HTTPConnection
 
 from .datatypes import AuthResult
 from .exceptions import InvalidCredentials
 
 
-class AuthBackend(AuthenticationBackend):
-    scheme: str = None
-
-    def invalid_credentials(self) -> AuthenticationError:
-        return InvalidCredentials(
-            "Could not authenticate with the provided credentials",
-            scheme=self.scheme,
-        )
-
+class AuthBackend(auth.AuthenticationBackend):
     async def authenticate(self, conn: HTTPConnection) -> AuthResult:
         raise NotImplementedError
 
 
-class BaseSchemeAuthBackend(AuthBackend):
+class _SchemeAuthBackend(AuthBackend):
+    scheme: str
+
     def get_credentials(self, conn: HTTPConnection) -> typing.Optional[str]:
         if "Authorization" not in conn.headers:
             return None
 
-        auth = conn.headers.get("Authorization")
-        scheme, _, credentials = auth.partition(" ")
+        authorization = conn.headers.get("Authorization")
+        scheme, _, credentials = authorization.partition(" ")
         if scheme.lower() != self.scheme.lower():
             return None
 
         return credentials
 
-    def parse_credentials(self, credentials: str) -> tuple:
-        return (credentials,)
+    def parse_credentials(self, credentials: str) -> typing.List[str]:
+        return [credentials]
+
+    verify: typing.Callable[
+        ..., typing.Awaitable[typing.Optional[auth.BaseUser]]
+    ]
 
     async def authenticate(self, conn: HTTPConnection):
         credentials = self.get_credentials(conn)
@@ -53,43 +45,45 @@ class BaseSchemeAuthBackend(AuthBackend):
         parts = self.parse_credentials(credentials)
         user = await self.verify(*parts)
         if user is None:
-            raise self.invalid_credentials()
+            raise InvalidCredentials
 
-        return AuthCredentials(["authenticated"]), user
-
-    verify: typing.Callable[..., typing.Awaitable[typing.Optional[BaseUser]]]
+        return auth.AuthCredentials(["authenticated"]), user
 
 
-class BaseBasicAuthBackend(BaseSchemeAuthBackend):
-    scheme = "basic"
+class BasicAuthBackend(_SchemeAuthBackend):
+    scheme = "Basic"
 
-    def parse_credentials(self, credentials: str) -> typing.Tuple[str, str]:
+    def parse_credentials(self, credentials: str) -> typing.List[str]:
         try:
             decoded_credentials = base64.b64decode(credentials).decode("ascii")
         except (ValueError, UnicodeDecodeError, binascii.Error):
-            raise self.invalid_credentials()
+            raise InvalidCredentials
 
         try:
             username, password = decoded_credentials.split(":")
         except ValueError:
-            raise self.invalid_credentials()
+            raise InvalidCredentials
 
-        return username, password
+        return [username, password]
 
     async def verify(
         self, username: str, password: str
-    ) -> typing.Optional[BaseUser]:
+    ) -> typing.Optional[auth.BaseUser]:
         raise NotImplementedError
 
 
-class BaseBearerTokenAuthBackend(BaseSchemeAuthBackend):
-    scheme = "bearer"
+class TokenAuthBackend(_SchemeAuthBackend):
+    scheme = "Bearer"
 
-    async def verify(self, token: str) -> typing.Optional[BaseUser]:
+    def parse_credentials(self, credentials: str) -> typing.List[str]:
+        token = credentials
+        return [token]
+
+    async def verify(self, token: str) -> typing.Optional[auth.BaseUser]:
         raise NotImplementedError
 
 
-class BaseAPIKeyAuthBackend(AuthBackend):
+class APIKeyAuthBackend(AuthBackend):
     def __init__(self, *, header: str = None, query_param: str = None):
         if header is not None:
             self._key_getter = lambda conn: conn.headers.get(header)
@@ -108,9 +102,9 @@ class BaseAPIKeyAuthBackend(AuthBackend):
 
         scopes = await self.verify(api_key)
         if scopes is None:
-            raise self.invalid_credentials()
+            raise InvalidCredentials
 
-        return AuthCredentials(scopes), UnauthenticatedUser()
+        return auth.AuthCredentials(scopes), auth.UnauthenticatedUser()
 
     async def verify(self, api_key: str) -> typing.Optional[typing.List[str]]:
         raise NotImplementedError
@@ -127,7 +121,7 @@ def load_backends(
         if isinstance(decl, str):
             module_name, sep, class_name = decl.partition(":")
             assert sep == ":", (
-                "Backend must be formatted as path.to.module:classname, "
+                "Backend must be formatted as 'path.to.module:classname', "
                 f"got {decl}"
             )
             module = importlib.import_module(module_name)
@@ -148,7 +142,7 @@ class MultiAuthBackend(AuthBackend):
         for backend in self.backends:
             try:
                 auth_result = await backend.authenticate(conn)
-            except AuthenticationError as exc:
+            except auth.AuthenticationError as exc:
                 raise exc from None
 
             if auth_result is None:

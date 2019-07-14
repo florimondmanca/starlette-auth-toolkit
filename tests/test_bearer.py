@@ -7,12 +7,12 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 
-from starlette_auth_toolkit.backends import BaseBearerTokenAuthBackend
+from starlette_auth_toolkit import backends
 
 TOKEN = "s3kr3t"
 
 
-class TokenAuthBackend(BaseBearerTokenAuthBackend):
+class TokenAuthBackend(backends.TokenAuthBackend):
     async def verify(self, token: str) -> typing.Optional[SimpleUser]:
         if token == TOKEN:
             return SimpleUser("bob")

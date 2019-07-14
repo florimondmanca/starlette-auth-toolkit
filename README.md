@@ -42,9 +42,9 @@ Base backends are **user model agnostic**, although we recommend you implement t
 ```python
 # myapp/auth.py
 from starlette.authentication import SimpleUser  # or a custom user model
-from starlette_auth_toolkit.backends import BaseBasicAuthBackend
+from starlette_auth_toolkit import backends
 
-class BasicAuthBackend(BaseBasicAuthBackend):
+class BasicAuthBackend(backends.BasicAuthBackend):
     async def verify(self, username: str, password: str):
         # TODO: you'd probably want to make a DB call here.
         if (username, password) != ("guido", "s3kr3t"):

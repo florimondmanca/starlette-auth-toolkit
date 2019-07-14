@@ -7,13 +7,13 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 
-from starlette_auth_toolkit.backends import BaseBasicAuthBackend
+from starlette_auth_toolkit import backends
 
 USERNAME = "user"
 PASSWORD = "s3kr3t"
 
 
-class BasicAuthBackend(BaseBasicAuthBackend):
+class BasicAuthBackend(backends.BasicAuthBackend):
     async def verify(
         self, username: str, password: str
     ) -> typing.Optional[SimpleUser]:

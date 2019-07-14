@@ -1,5 +1,5 @@
 import typing
 
-from starlette.authentication import AuthCredentials, BaseUser
+from starlette import authentication as auth
 
-AuthResult = typing.Optional[typing.Tuple[AuthCredentials, BaseUser]]
+AuthResult = typing.Optional[typing.Tuple[auth.AuthCredentials, auth.BaseUser]]
