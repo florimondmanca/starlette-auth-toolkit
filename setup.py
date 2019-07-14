@@ -11,7 +11,7 @@ with io.open(os.path.join(CURDIR, "README.md"), "r", encoding="utf-8") as f:
 
 setup(
     name="starlette-auth-toolkit",
-    version="0.1.0",
+    version="0.2.0",
     author="Florimond Manca",
     author_email="florimond.manca@gmail.com",
     description=(
