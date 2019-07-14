@@ -8,12 +8,7 @@ All notable changes to this project are documented here. The format of this docu
 
 ### Added
 
-Features:
-
-- Basic auth base backend.
-
-Meta:
-
+- Basic Authentication backend.
 - CI/CD pipeline.
 - Changelog.
 - Contributing guidelines.
