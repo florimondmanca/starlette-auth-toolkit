@@ -1,6 +1,6 @@
 # starlette-auth-toolkit
 
-[![travis](https://img.shields.io/travis/florimondmanca/starlette-auth-toolkit.svg)](https://travis-ci.org/florimondmanca/starlette-auth-toolkit)
+[![travis](https://travis-ci.org/florimondmanca/starlette-auth-toolkit.svg?branch=master)](https://travis-ci.org/florimondmanca/starlette-auth-toolkit)
 [![pypi](https://badge.fury.io/py/starlette-auth-toolkit.svg)](https://pypi.org/project/starlette-auth-toolkit)
 ![python](https://img.shields.io/pypi/pyversions/starlette-auth-toolkit.svg)
 [![black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
