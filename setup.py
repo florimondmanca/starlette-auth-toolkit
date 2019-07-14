@@ -25,6 +25,21 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[],
+    extras_require={
+        "passlib": ["passlib>=1.7, <2"],
+        "dev": [
+            # Tests
+            "pytest",
+            "pytest-asyncio",
+            "starlette >= 0.11",
+            "requests",
+            # Code style
+            "black",
+            "pylint",
+            # Release
+            "bumpversion",
+        ],
+    },
     python_requires=">=3.6",
     # license and classifier list:
     # https://pypi.org/pypi?%3Aaction=list_classifiers
