@@ -2,7 +2,6 @@ import base64
 import binascii
 import inspect
 import typing
-import operator
 import importlib
 
 from starlette.authentication import (
@@ -27,6 +26,9 @@ class AuthBackend(AuthenticationBackend):
             scheme=self.scheme,
         )
 
+    async def authenticate(self, conn: HTTPConnection) -> AuthResult:
+        raise NotImplementedError
+
 
 class BaseSchemeAuthBackend(AuthBackend):
     def get_credentials(self, conn: HTTPConnection) -> typing.Optional[str]:
@@ -34,13 +36,8 @@ class BaseSchemeAuthBackend(AuthBackend):
             return None
 
         auth = conn.headers.get("Authorization")
-
-        try:
-            scheme, credentials = auth.split()
-        except ValueError:
-            raise self.invalid_credentials()
-
-        if scheme.lower() != self.scheme:
+        scheme, _, credentials = auth.partition(" ")
+        if scheme.lower() != self.scheme.lower():
             return None
 
         try:
