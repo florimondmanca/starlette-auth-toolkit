@@ -24,7 +24,7 @@ class BasicAuthBackend(BaseBasicAuthBackend):
 
 @pytest.fixture(name="app")
 def fixture_app():
-    def on_error(req, exc):
+    def on_error(request, exc):
         return PlainTextResponse(str(exc), status_code=401)
 
     app = Starlette()
