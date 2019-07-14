@@ -40,10 +40,7 @@ class BaseSchemeAuthBackend(AuthBackend):
         if scheme.lower() != self.scheme.lower():
             return None
 
-        try:
-            return base64.b64decode(credentials).decode("ascii")
-        except (ValueError, UnicodeDecodeError, binascii.Error):
-            raise self.invalid_credentials()
+        return credentials
 
     def parse_credentials(self, credentials: str) -> tuple:
         return (credentials,)
@@ -68,9 +65,15 @@ class BaseBasicAuthBackend(BaseSchemeAuthBackend):
 
     def parse_credentials(self, credentials: str) -> typing.Tuple[str, str]:
         try:
-            username, password = credentials.split(":")
+            decoded_credentials = base64.b64decode(credentials).decode("ascii")
+        except (ValueError, UnicodeDecodeError, binascii.Error):
+            raise self.invalid_credentials()
+
+        try:
+            username, password = decoded_credentials.split(":")
         except ValueError:
             raise self.invalid_credentials()
+
         return username, password
 
     async def verify(
