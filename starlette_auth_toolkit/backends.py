@@ -2,7 +2,6 @@ import base64
 import binascii
 import inspect
 import typing
-import operator
 import importlib
 
 from starlette.authentication import (
@@ -27,6 +26,9 @@ class AuthBackend(AuthenticationBackend):
             scheme=self.scheme,
         )
 
+    async def authenticate(self, conn: HTTPConnection) -> AuthResult:
+        raise NotImplementedError
+
 
 class BaseSchemeAuthBackend(AuthBackend):
     def get_credentials(self, conn: HTTPConnection) -> typing.Optional[str]:
@@ -34,19 +36,11 @@ class BaseSchemeAuthBackend(AuthBackend):
             return None
 
         auth = conn.headers.get("Authorization")
-
-        try:
-            scheme, credentials = auth.split()
-        except ValueError:
-            raise self.invalid_credentials()
-
-        if scheme.lower() != self.scheme:
+        scheme, _, credentials = auth.partition(" ")
+        if scheme.lower() != self.scheme.lower():
             return None
 
-        try:
-            return base64.b64decode(credentials).decode("ascii")
-        except (ValueError, UnicodeDecodeError, binascii.Error):
-            raise self.invalid_credentials()
+        return credentials
 
     def parse_credentials(self, credentials: str) -> tuple:
         return (credentials,)
@@ -71,9 +65,15 @@ class BaseBasicAuthBackend(BaseSchemeAuthBackend):
 
     def parse_credentials(self, credentials: str) -> typing.Tuple[str, str]:
         try:
-            username, password = credentials.split(":")
+            decoded_credentials = base64.b64decode(credentials).decode("ascii")
+        except (ValueError, UnicodeDecodeError, binascii.Error):
+            raise self.invalid_credentials()
+
+        try:
+            username, password = decoded_credentials.split(":")
         except ValueError:
             raise self.invalid_credentials()
+
         return username, password
 
     async def verify(
