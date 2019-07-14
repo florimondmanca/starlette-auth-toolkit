@@ -25,7 +25,17 @@ These backends grant a set of [scopes](https://www.starlette.io/authentication/#
 
 Base backends are **user model agnostic**, although we recommend you implement the interface specified by `starlette.authentication.BaseUser` (see also [Starlette authentication](https://www.starlette.io/authentication/)).
 
-### [Basic auth](https://tools.ietf.org/html/rfc7617)
+### `BasicAuthBackend`
+
+Implementation of the [Basic authentication scheme](https://tools.ietf.org/html/rfc7617).
+
+**Request header format**
+
+```http
+Authorization: Basic {credentials}
+```
+
+where `{credentials}` refers to the base64 encoding of `{username}:{password}`.
 
 **Abstract methods**
 
@@ -46,10 +56,50 @@ from starlette_auth_toolkit import backends
 
 class BasicAuthBackend(backends.BasicAuthBackend):
     async def verify(self, username: str, password: str):
-        # TODO: you'd probably want to make a DB call here.
+        # TODO: in practice, request the database to find the user associated
+        # to `username`, and validate that its password hash matches the
+        # given password.
         if (username, password) != ("guido", "s3kr3t"):
             return None
         return SimpleUser(username)
+```
+
+### `BearerAuthBackend`
+
+Implementation of the [Bearer authentication scheme](https://tools.ietf.org/html/rfc6750).
+
+> Note: this is sometimes also referred to as "Token authentication".
+
+**Request header format**
+
+```http
+Authorization: Bearer {token}
+```
+
+**Abstract methods**
+
+- `.verify(self, token: str) -> Optional[BaseUser]`
+
+  If `token` refers to a valid token, return the corresponding user. Otherwise, return `None`.
+
+**Scopes**
+
+- `authenticated`
+
+**Example**
+
+```python
+# myapp/auth.py
+from starlette.authentication import SimpleUser  # or a custom user model
+from starlette_auth_toolkit import backends
+
+class BearerAuthBackend(backends.BearerAuthBackend):
+    async def verify(self, token: str):
+        # TODO: in practice, request the database to find the token object
+        # associated to `token`, and return its associated user.
+        if token != "abcd":
+            return None
+        return SimpleUser("bob")
 ```
 
 ## Contributing

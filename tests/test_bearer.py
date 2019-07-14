@@ -12,7 +12,7 @@ from starlette_auth_toolkit import backends
 TOKEN = "s3kr3t"
 
 
-class TokenAuthBackend(backends.TokenAuthBackend):
+class BearerAuthBackend(backends.BearerAuthBackend):
     async def verify(self, token: str) -> typing.Optional[SimpleUser]:
         if token == TOKEN:
             return SimpleUser("bob")
@@ -26,7 +26,7 @@ def fixture_app():
 
     app = Starlette()
     app.add_middleware(
-        AuthenticationMiddleware, backend=TokenAuthBackend(), on_error=on_error
+        AuthenticationMiddleware, backend=BearerAuthBackend(), on_error=on_error
     )
 
     @app.route("/")
@@ -46,7 +46,7 @@ def fixture_client(app):
 @pytest.mark.parametrize(
     "token,status_code", [(TOKEN, 200), (None, 403), ("doesnotexist", 401)]
 )
-def test_basic_auth(client, token, status_code):
+def test_bearer_auth(client, token, status_code):
     headers = {}
     if token:
         headers["Authorization"] = f"Bearer {token}"

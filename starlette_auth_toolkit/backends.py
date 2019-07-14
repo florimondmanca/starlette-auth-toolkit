@@ -72,7 +72,7 @@ class BasicAuthBackend(_SchemeAuthBackend):
         raise NotImplementedError
 
 
-class TokenAuthBackend(_SchemeAuthBackend):
+class BearerAuthBackend(_SchemeAuthBackend):
     scheme = "Bearer"
 
     def parse_credentials(self, credentials: str) -> typing.List[str]:

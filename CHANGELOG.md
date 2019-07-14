@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+### Added
+
+- Bearer authenticantion backend (also known as "token authentication").
+- Document the format of authorization headers for available backends.
+
 ### [v0.1.0] - 2019-05-12
 
 ### Added
