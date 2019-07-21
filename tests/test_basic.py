@@ -7,7 +7,7 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 
-from starlette_auth_toolkit import backends
+from starlette_auth_toolkit.base import backends
 
 USERNAME = "user"
 PASSWORD = "s3kr3t"

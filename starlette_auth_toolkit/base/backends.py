@@ -7,8 +7,8 @@ import typing
 from starlette import authentication as auth
 from starlette.requests import HTTPConnection
 
-from .datatypes import AuthResult
-from .exceptions import InvalidCredentials
+from ..datatypes import AuthResult
+from ..exceptions import InvalidCredentials
 
 
 class AuthBackend(auth.AuthenticationBackend):

@@ -31,6 +31,8 @@ These backends grant a set of [scopes](https://www.starlette.io/authentication/#
 
 Base backends are **user model agnostic**, although we recommend you implement the interface specified by `starlette.authentication.BaseUser` (see also [Starlette authentication](https://www.starlette.io/authentication/)).
 
+They are available at `starlette_auth_toolkit.base.backends`.
+
 ### `BasicAuthBackend`
 
 Implementation of the [Basic authentication scheme](https://tools.ietf.org/html/rfc7617).

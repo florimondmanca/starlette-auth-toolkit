@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+### Chaned
+
+- **BREAKING**: base backends are now under `.base.backends` instead of `.backends`.
+
 ## [v0.2.0] - 2019-07-14
 
 ### Added
