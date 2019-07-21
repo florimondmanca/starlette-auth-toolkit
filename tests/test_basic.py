@@ -1,48 +1,12 @@
-import typing
-
 import pytest
-from starlette.applications import Starlette
-from starlette.authentication import SimpleUser, requires
-from starlette.middleware.authentication import AuthenticationMiddleware
-from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 
-from starlette_auth_toolkit.base import backends
-
-USERNAME = "user"
-PASSWORD = "s3kr3t"
-
-
-class BasicAuthBackend(backends.BasicAuthBackend):
-    async def verify(
-        self, username: str, password: str
-    ) -> typing.Optional[SimpleUser]:
-        if (username, password) == (USERNAME, PASSWORD):
-            return SimpleUser(username)
-        return None
-
-
-@pytest.fixture(name="app")
-def fixture_app():
-    def on_error(request, exc):
-        return PlainTextResponse(str(exc), status_code=401)
-
-    app = Starlette()
-    app.add_middleware(
-        AuthenticationMiddleware, backend=BasicAuthBackend(), on_error=on_error
-    )
-
-    @app.route("/")
-    @requires("authenticated", status_code=403)
-    async def index(request):
-        return PlainTextResponse("OK")
-
-    return app
+from .apps.dummy.basic import get_app, USERNAME, PASSWORD
 
 
 @pytest.fixture(name="client")
-def fixture_client(app):
-    return TestClient(app)
+def fixture_client():
+    return TestClient(get_app())
 
 
 @pytest.mark.parametrize(
