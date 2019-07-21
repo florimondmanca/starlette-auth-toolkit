@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+## [v0.3.0] - 2019-07-21
+
 ### Added
 
 - Password hashers in `starlette_auth_toolkit.passwords`.
@@ -29,6 +31,7 @@ All notable changes to this project are documented here. The format of this docu
 - Contributing guidelines.
 - License.
 
-[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/48b5ffd...v0.1.0
