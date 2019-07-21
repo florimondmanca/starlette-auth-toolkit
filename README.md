@@ -7,16 +7,28 @@
 
 Authentication backends and helpers for Starlette-based apps and frameworks.
 
-**Note**: documentation is in progress. In the meantime, feel free to read the source code!
+**Features**
+
+- Database-agnostic.
+- User model-agnostic.
+- Built-in password hashing powered by [PassLib].
+- Hash migration support.
+- Built-in support for common authentication flows, including Basic and Bearer authentication.
+- Support for multiple authentication backends.
+- Easy integration with [`orm`].
+
+[passlib]: https://passlib.readthedocs.io/en/stable/index.html
+[`orm`]: https://github.com/encode/orm
+
+> **Note**: documentation is in progress. In the meantime, feel free to read the source code!
 
 **Contents**
 
 - [Installation](#installation)
 - [Quickstart](#quickstart)
-- Usage:
-  - [Base backends](#base-backends)
-  - [Password hashers](#password-hashers)
-  - [Authentication helpers](#authentication-helpers)
+- [Base backends](#base-backends)
+- [Password hashers](#password-hashers)
+- [Authentication helpers](#authentication-helpers)
 
 ## Installation
 
@@ -92,6 +104,7 @@ app.add_middleware(AuthenticationMiddleware, backend=BasicAuth())
 async def home(request):
     """Example protected route."""
     return JSONResponse({"message": f"Hello, {request.user.username}!"})
+
 ```
 
 Save this file as `app.py`. Then, assuming you have [uvicorn](https://www.uvicorn.org/) installed, run `$ uvicorn app:app` and make requests:
@@ -128,7 +141,7 @@ content-type: application/json
 {"message":"Hello, alice!"}
 ```
 
-For a complete example featuring Basic authentication, Bearer authentication, and using `orm` for user and token models, see [`tests/apps/example.py`](https://github.com/florimondmanca/starlette-auth-toolkit/blob/master/tests/apps/example.py).
+For a real-world example, [see here](https://github.com/florimondmanca/starlette-auth-toolkit/blob/master/tests/apps/example.py).
 
 ## Base backends
 
@@ -217,7 +230,7 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 
 ## Password hashers
 
-This package provides password hashing utilities built on top of [PassLib](https://passlib.readthedocs.io/en/stable/index.html).
+This package provides password hashing utilities built on top of [PassLib].
 
 ### Usage
 
@@ -343,9 +356,7 @@ Base class for authentication helpers.
 
 A ready-to-use implementation of `BaseAuthenticate` using an `orm` user model.
 
-**Dependencies**
-
-- [`orm`](https://github.com/encode/orm).
+**Note**: [`orm`] must be installed to use this helper.
 
 **Example**
 
