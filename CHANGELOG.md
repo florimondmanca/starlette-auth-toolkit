@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format of this docu
 - `base.helpers.BaseAuthenticate` for building authentication helpers.
 - `contrib.orm.ModelAuthenticate`: a `BaseAuthenticate` implementation relying on an `orm` user model.
 - `cryptography.get_random_string()` helper.
+- Quickstart and examples.
 
 ### Changed
 
