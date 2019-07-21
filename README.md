@@ -45,6 +45,23 @@ Authorization: Basic {credentials}
 
 where `{credentials}` refers to the base64 encoding of `{username}:{password}`.
 
+**Example**
+
+```python
+# myapp/auth.py
+from starlette.authentication import SimpleUser  # or a custom user model
+from starlette_auth_toolkit.base import backends
+
+class BasicAuthBackend(backends.BasicAuthBackend):
+    async def verify(self, username: str, password: str):
+        # In practice, request the database to find the user associated
+        # to `username`, and validate that its password hash matches the
+        # given password.
+        if (username, password) != ("bob", "s3kr3t"):
+            return None
+        return SimpleUser(username)
+```
+
 **Abstract methods**
 
 - `.verify(self, username: str, password: str) -> Optional[BaseUser]`
@@ -54,23 +71,6 @@ where `{credentials}` refers to the base64 encoding of `{username}:{password}`.
 **Scopes**
 
 - `authenticated`
-
-**Example**
-
-```python
-# myapp/auth.py
-from starlette.authentication import SimpleUser  # or a custom user model
-from starlette_auth_toolkit import backends
-
-class BasicAuthBackend(backends.BasicAuthBackend):
-    async def verify(self, username: str, password: str):
-        # TODO: in practice, request the database to find the user associated
-        # to `username`, and validate that its password hash matches the
-        # given password.
-        if (username, password) != ("guido", "s3kr3t"):
-            return None
-        return SimpleUser(username)
-```
 
 ### `BearerAuthBackend`
 
@@ -84,6 +84,22 @@ Implementation of the [Bearer authentication scheme](https://tools.ietf.org/html
 Authorization: Bearer {token}
 ```
 
+**Example**
+
+```python
+# myapp/auth.py
+from starlette.authentication import SimpleUser  # or a custom user model
+from starlette_auth_toolkit.base import backends
+
+class BearerAuthBackend(backends.BearerAuthBackend):
+    async def verify(self, token: str):
+        # In practice, request the database to find the token object
+        # associated to `token`, and return its associated user.
+        if token != "abcd":
+            return None
+        return SimpleUser("bob")
+```
+
 **Abstract methods**
 
 - `.verify(self, token: str) -> Optional[BaseUser]`
@@ -93,22 +109,6 @@ Authorization: Bearer {token}
 **Scopes**
 
 - `authenticated`
-
-**Example**
-
-```python
-# myapp/auth.py
-from starlette.authentication import SimpleUser  # or a custom user model
-from starlette_auth_toolkit import backends
-
-class BearerAuthBackend(backends.BearerAuthBackend):
-    async def verify(self, token: str):
-        # TODO: in practice, request the database to find the token object
-        # associated to `token`, and return its associated user.
-        if token != "abcd":
-            return None
-        return SimpleUser("bob")
-```
 
 ## Contributing
 
