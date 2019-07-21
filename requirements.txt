@@ -1,13 +1,1 @@
--e .
-
-# Tests
-pytest
-starlette >= 0.11
-requests
-
-# Code style
-black
-pylint
-
-# Release
-bumpversion
+-e .[dev]

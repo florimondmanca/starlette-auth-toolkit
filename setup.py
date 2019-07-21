@@ -24,21 +24,23 @@ setup(
     packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[],
+    install_requires=["passlib>=1.7, <2"],
     extras_require={
-        "passlib": ["passlib>=1.7, <2"],
         "dev": [
             # Tests
             "pytest",
             "pytest-asyncio",
             "starlette >= 0.11",
             "requests",
+            # Extra password backends
+            "argon2-cffi",
+            "bcrypt",
             # Code style
             "black",
             "pylint",
             # Release
             "bumpversion",
-        ],
+        ]
     },
     python_requires=">=3.6",
     # license and classifier list:

@@ -14,6 +14,7 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 - [Installation](#installation)
 - Usage:
   - [Base backends](#base-backends)
+  - [Password hashers](#password-hashers)
 
 ## Installation
 
@@ -109,6 +110,92 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 **Scopes**
 
 - `authenticated`
+
+## Password hashers
+
+This package provides password hashing utilities built on top of [Passlib](https://passlib.readthedocs.io/en/stable/index.html).
+
+### Usage
+
+- Asynchronous: `await .make()` / `await .verify()` (hashing and verification occurs in the threadpool)
+
+```python
+import asyncio
+from starlette_auth_toolkit.passwords import PBKDF2Hasher
+
+async def main():
+    # Instanciate a hasher:
+    hasher = PBKDF2Hasher()
+
+    # Hash a password:
+    pwd = await hasher.make("hello")
+
+    # Verify a password against a known hash:
+    assert await hasher.verify("hello", pwd)
+
+# Python 3.7+
+asyncio.run(main())
+```
+
+- Blocking: `.make_sync()` / `.verify_sync()`
+
+```python
+from starlette_auth_toolkit.passwords import PBKDF2Hasher
+
+# Instanciate a hasher:
+hasher = PBKDF2Hasher()
+
+# Hash a password
+pwd = hasher.make_sync("hello")
+
+# Verify a password against a known hash:
+assert hasher.verify_sync("hello", pwd)
+```
+
+### Hash migration (Advanced)
+
+If you need to change the hash algorithm (say from PBKDF2 to Argon2), you will typically want to keep support for existing hashes, but rehash them with the new algorithm as soon as possible.
+
+`MultiHasher` was designed to solve this problem:
+
+```python
+from starlette_auth_toolkit.passwords import Argon2Hasher, PBKDF2Hasher, MultiHasher
+
+hasher = MultiHasher([Argon2Hasher(), PBKDF2Hasher()])
+```
+
+The above `hasher` will use Argon2 when hashing new passwords, but will be able to verify hashes created using either Argon2 or PBKDF2.
+
+To detect whether a hash needs rehashing, use `.needs_update()`:
+
+```python
+valid = await hasher.verify(pwd, pwd_hash)
+
+if hasher.needs_update(pwd_hash):
+    new_hash = await hasher.make(pwd)
+    # TODO: store new hash
+
+# ...
+```
+
+> **Note**: calling `.needs_update()` at anytime other than just after calling `.verify()` will raise a `RuntimeError`.
+
+### Available hashers
+
+| Name           | Requires      |
+| -------------- | ------------- |
+| `PBKDF2Hasher` |               |
+| `CryptHasher`  |               |
+| `BCryptHasher` | `bcrypt`      |
+| `Argon2Hasher` | `argon2-cffi` |
+
+For advanced use cases, use `Hasher` and pass one of the algorithms listed in [passlib.hash](https://passlib.readthedocs.io/en/stable/lib/passlib.hash.html):
+
+```python
+from starlette_auth_toolkit.passwords import Hasher
+
+hasher = Hasher(algorithm="pbkdf2_sha512")
+```
 
 ## Contributing
 
