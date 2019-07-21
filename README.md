@@ -7,7 +7,7 @@
 
 Authentication backends and helpers for Starlette-based apps and frameworks.
 
-**Note**: documentation is in progress — in the meantime, feel free to read the source code!
+**Note**: documentation is in progress. In the meantime, feel free to read the source code!
 
 **Contents**
 
@@ -76,9 +76,7 @@ class BasicAuthBackend(backends.BasicAuthBackend):
 
 ### `BearerAuthBackend`
 
-Implementation of the [Bearer authentication scheme](https://tools.ietf.org/html/rfc6750).
-
-> Note: this is sometimes also referred to as "Token authentication".
+Implementation of the [Bearer authentication scheme](https://tools.ietf.org/html/rfc6750), also known as _Token authentication_.
 
 **Request header format**
 
@@ -189,6 +187,7 @@ if hasher.needs_update(pwd_hash):
 | `CryptHasher`  |               | `sha256_crypt`    |
 | `BCryptHasher` | `bcrypt`      | `bcrypt`          |
 | `Argon2Hasher` | `argon2-cffi` | `argon2`          |
+| `MultiHasher`  |               | N/A               |
 
 For advanced use cases, use `Hasher` and pass one of the algorithms listed in [passlib.hash](https://passlib.readthedocs.io/en/stable/lib/passlib.hash.html):
 
@@ -216,18 +215,21 @@ Base class for authentication helpers.
 
 **Abstract methods**
 
-- _async_ `find_user(username: str) -> Optional[BaseUser]`
+- _async_ `.find_user(self, username: str) -> Optional[BaseUser]`
 
   Return the user associated to `username`, or `None` if none exist.
 
-- _async_ `verify_password(user: BaseUser, password: str) -> bool`
+- _async_ `.verify_password(self, user: BaseUser, password: str) -> bool`
+
   Given a user, check that the given `password` is valid.
   For example, compare the given `password` against the user's password hash.
 
 **Methods**
 
-- _async_ `__call__(username: str, password: str) -> Optional[BaseUser]`:
-  Authenticate a user:
+- _async_ `.__call__(self, username: str, password: str) -> Optional[BaseUser]`
+
+  Authenticate a user using the following algorithm:
+
   1. Find a `user` using `.find_user()`
   2. Verify the password using `.verify_password()`
   3. Return `user` if it exists and the password is valid, and `None` otherwise.
@@ -266,7 +268,7 @@ async def home(request):
 
 - `model` (`orm.Model` or `() -> orm.Model`): the user model (or a callable for lazy loading).
 - `hasher` (`BaseHasher`): a [password hasher](#password-hashers) — the same one used to hash user passwords.
-- `pasword_field` (`str`, optional): field where password hashes are stored on user objects. Defaults to `"password"`.
+- `password_field` (`str`, optional): field where password hashes are stored on user objects. Defaults to `"password"`.
 
 ## Contributing
 
