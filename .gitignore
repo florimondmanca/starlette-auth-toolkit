@@ -17,4 +17,5 @@ var/
 .mypy_cache/
 .vscode
 *.sqlite
+*.db
 debug/

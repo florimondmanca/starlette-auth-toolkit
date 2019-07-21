@@ -4,7 +4,7 @@ from starlette.authentication import SimpleUser
 
 from starlette_auth_toolkit.base import backends
 
-from ..utils import make_get_app
+from ..utils import get_base_app
 
 USERNAME = "user"
 PASSWORD = "s3kr3t"
@@ -20,4 +20,4 @@ class BasicAuth(backends.BasicAuthBackend):
 
 
 def get_app():
-    return make_get_app(backend=BasicAuth())
+    return get_base_app(backend=BasicAuth())

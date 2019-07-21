@@ -15,6 +15,7 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 - Usage:
   - [Base backends](#base-backends)
   - [Password hashers](#password-hashers)
+  - [Authentication helpers](#authentication-helpers)
 
 ## Installation
 
@@ -196,6 +197,76 @@ from starlette_auth_toolkit.passwords import Hasher
 
 hasher = Hasher(algorithm="pbkdf2_sha512")
 ```
+
+## Authentication helpers
+
+Web applications often need to exchange user credentials (username and password) against the actual user.
+
+Such an exchange is typically implemented as an `authenticate` utility function:
+
+```python
+user = await authenticate(username, password)
+```
+
+Helpers listed here make it easier to build a secure `authenticate` utility function, which you can then reuse when building your authentication backends.
+
+### `base.helpers.BaseAuthenticate`
+
+Base class for authentication helpers.
+
+**Abstract methods**
+
+- _async_ `find_user(username: str) -> Optional[BaseUser]`
+
+  Return the user associated to `username`, or `None` if none exist.
+
+- _async_ `verify_password(user: BaseUser, password: str) -> bool`
+  Given a user, check that the given `password` is valid.
+  For example, compare the given `password` against the user's password hash.
+
+**Methods**
+
+- _async_ `__call__(username: str, password: str) -> Optional[BaseUser]`:
+  Authenticate a user:
+  1. Find a `user` using `.find_user()`
+  2. Verify the password using `.verify_password()`
+  3. Return `user` if it exists and the password is valid, and `None` otherwise.
+
+### `contrib.orm.ModelAuthenticate`
+
+A ready-to-use implementation of `BaseAuthenticate` using an `orm` user model.
+
+**Dependencies**
+
+- [`orm`](https://github.com/encode/orm).
+
+**Example**
+
+```python
+from starlette.applications import Starlette
+from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
+from starlette_auth_toolkit.passwords import PBKDF2Hasher
+
+from myproject.models import User  # DIY
+
+hasher = PBKDF2Hasher()
+authenticate = ModelAuthenticate(User, hasher=hasher)
+
+app = Starlette()
+
+@app.route("/")
+async def home(request):
+    data = await request.json()
+    username, password = data["username"], data["password"]
+    user: User = await authenticate(username, password)
+    # ...
+```
+
+**Parameters**
+
+- `model` (`orm.Model` or `() -> orm.Model`): the user model (or a callable for lazy loading).
+- `hasher` (`BaseHasher`): a [password hasher](#password-hashers) — the same one used to hash user passwords.
+- `pasword_field` (`str`, optional): field where password hashes are stored on user objects. Defaults to `"password"`.
 
 ## Contributing
 

@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+### Added
+
+- `base.helpers.BaseAuthenticate` for building authentication helpers.
+- `contrib.orm.ModelAuthenticate`: a `BaseAuthenticate` implementation relying on an `orm` user model.
+- `passwords.get_random_string()` helper.
+
 ## [v0.3.0] - 2019-07-21
 
 ### Added

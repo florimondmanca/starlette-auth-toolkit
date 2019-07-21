@@ -24,15 +24,18 @@ setup(
     packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
     include_package_data=True,
     zip_safe=False,
-    install_requires=["passlib>=1.7, <2"],
+    install_requires=["starlette >= 0.11", "passlib>=1.7, <2"],
     extras_require={
         "dev": [
             # Tests
             "pytest",
             "pytest-asyncio",
-            "starlette >= 0.11",
+            # Test client
             "requests",
-            # Extra password backends
+            # orm integration tests
+            "orm",
+            "databases[sqlite]",
+            # Optional password backends
             "argon2-cffi",
             "bcrypt",
             # Code style

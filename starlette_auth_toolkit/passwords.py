@@ -1,13 +1,19 @@
+import secrets
+import string
 import typing
 
+import passlib.hash as _hashers
+from passlib.ifc import PasswordHash
 from starlette.concurrency import run_in_threadpool
 
-try:
-    import passlib.hash as _hashers
-    from passlib.ifc import PasswordHash
-except ImportError:
-    _hashers = None
-    PasswordHash = None
+
+def generate_random_string(size: int = 32) -> str:
+    return "".join(
+        secrets.choice(generate_random_string.alphabet) for _ in range(size)
+    )
+
+
+generate_random_string.alphabet = string.ascii_letters + string.digits
 
 
 class BaseHasher:

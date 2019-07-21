@@ -6,7 +6,7 @@ from starlette.responses import PlainTextResponse
 from starlette_auth_toolkit.base.backends import AuthBackend
 
 
-def make_get_app(backend: AuthBackend) -> Starlette:
+def get_base_app(backend: AuthBackend) -> Starlette:
     def on_error(request, exc):  # pylint: disable=unused-argument
         return PlainTextResponse(str(exc), status_code=401)
 
