@@ -9,6 +9,12 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 
 **Note**: documentation is in progress — in the meantime, feel free to read the source code!
 
+**Contents**
+
+- [Installation](#installation)
+- Usage:
+  - [Base backends](#base-backends)
+
 ## Installation
 
 ```bash
