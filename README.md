@@ -113,7 +113,7 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 
 ## Password hashers
 
-This package provides password hashing utilities built on top of [Passlib](https://passlib.readthedocs.io/en/stable/index.html).
+This package provides password hashing utilities built on top of [PassLib](https://passlib.readthedocs.io/en/stable/index.html).
 
 ### Usage
 
@@ -182,12 +182,12 @@ if hasher.needs_update(pwd_hash):
 
 ### Available hashers
 
-| Name           | Requires      |
-| -------------- | ------------- |
-| `PBKDF2Hasher` |               |
-| `CryptHasher`  |               |
-| `BCryptHasher` | `bcrypt`      |
-| `Argon2Hasher` | `argon2-cffi` |
+| Name           | Requires      | PassLib algorithm |
+| -------------- | ------------- | ----------------- |
+| `PBKDF2Hasher` |               | `pbkdf2_sha256`   |
+| `CryptHasher`  |               | `sha256_crypt`    |
+| `BCryptHasher` | `bcrypt`      | `bcrypt`          |
+| `Argon2Hasher` | `argon2-cffi` | `argon2`          |
 
 For advanced use cases, use `Hasher` and pass one of the algorithms listed in [passlib.hash](https://passlib.readthedocs.io/en/stable/lib/passlib.hash.html):
 
