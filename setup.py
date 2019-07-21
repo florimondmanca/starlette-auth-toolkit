@@ -32,12 +32,14 @@ setup(
             "pytest-asyncio",
             # Test client
             "requests",
-            # orm integration tests
-            "orm",
-            "databases[sqlite]",
+            # Web server
+            "uvicorn",
             # Optional password backends
             "argon2-cffi",
             "bcrypt",
+            # orm integration
+            "orm",
+            "databases[sqlite]",
             # Code style
             "black",
             "pylint",

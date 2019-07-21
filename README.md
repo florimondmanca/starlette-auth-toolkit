@@ -12,6 +12,7 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 **Contents**
 
 - [Installation](#installation)
+- [Quickstart](#quickstart)
 - Usage:
   - [Base backends](#base-backends)
   - [Password hashers](#password-hashers)
@@ -23,7 +24,111 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 pip install starlette-auth-toolkit
 ```
 
-**Note**: you need to [install Starlette](https://www.starlette.io/#installation) yourself.
+## Quickstart
+
+```python
+import typing
+
+from starlette.applications import Starlette
+from starlette.authentication import requires
+from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.responses import JSONResponse
+
+from starlette_auth_toolkit.base.backends import BasicAuthBackend
+from starlette_auth_toolkit.base.helpers import BaseAuthenticate
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
+
+
+# User model
+
+class User(typing.NamedTuple):
+    username: str
+    password: str
+
+
+# Password hasher
+
+hasher = PBKDF2Hasher()
+
+
+# Fake storage
+
+USERS = {
+    "alice": User(username="alice", password=hasher.make_sync("alicepwd")),
+    "bob": User(username="bob", password=hasher.make_sync("bobpwd")),
+}
+
+
+# Authentication helper
+
+class Authenticate(BaseAuthenticate):
+    async def find_user(self, username: str):
+        return USERS.get(username)
+
+    async def verify_password(self, user: User, password: str):
+        return await hasher.verify(password, user.password)
+
+
+authenticate = Authenticate()
+
+
+# Authentication backend
+
+class BasicAuth(BasicAuthBackend):
+    async def verify(
+        self, username: str, password: str
+    ) -> typing.Optional[User]:
+        return await authenticate(username, password)
+
+
+# Application
+
+app = Starlette()
+app.add_middleware(AuthenticationMiddleware, backend=BasicAuth())
+
+
+@app.route("/")
+@requires("authenticated")
+async def home(request):
+    """Example protected route."""
+    return JSONResponse({"message": f"Hello, {request.user.username}!"})
+```
+
+Save this file as `app.py`. Then, assuming you have [uvicorn](https://www.uvicorn.org/) installed, run `$ uvicorn app:app` and make requests:
+
+- Anonymous request:
+
+```bash
+curl http://localhost:8000 -i
+```
+
+```http
+HTTP/1.1 401 Unauthorized
+date: Sun, 21 Jul 2019 17:54:00 GMT
+server: uvicorn
+content-length: 52
+content-type: text/plain; charset=utf-8
+
+Could not authenticate with the provided credentials
+```
+
+- Authenticated request:
+
+```bash
+curl -u alice:alicepwd http://localhost:8000
+```
+
+```http
+HTTP/1.1 200 OK
+date: Sun, 21 Jul 2019 17:54:28 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+
+{"message":"Hello, alice!"}
+```
+
+For a complete example featuring Basic authentication, Bearer authentication, and using `orm` for user and token models, see [`tests/apps/example.py`](https://github.com/florimondmanca/starlette-auth-toolkit/blob/master/tests/apps/example.py).
 
 ## Base backends
 

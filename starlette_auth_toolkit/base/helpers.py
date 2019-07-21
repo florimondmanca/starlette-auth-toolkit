@@ -15,6 +15,9 @@ class BaseAuthenticate:
     ) -> typing.Optional[BaseUser]:
         user = await self.find_user(username=username)
 
+        if user is None:
+            return None
+
         valid = await self.verify_password(user, password)
         if not valid:
             return None
