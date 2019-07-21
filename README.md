@@ -7,6 +7,8 @@
 
 Authentication backends and helpers for Starlette-based apps and frameworks.
 
+> **Note**: documentation is in progress. In the meantime, feel free to [read the source code](https://github.com/florimondmanca/starlette-auth-toolkit/tree/master/starlette_auth_toolkit).
+
 **Features**
 
 - Database-agnostic.
@@ -19,8 +21,6 @@ Authentication backends and helpers for Starlette-based apps and frameworks.
 
 [passlib]: https://passlib.readthedocs.io/en/stable/index.html
 [`orm`]: https://github.com/encode/orm
-
-> **Note**: documentation is in progress. In the meantime, feel free to read the source code!
 
 **Contents**
 
@@ -149,7 +149,7 @@ Base backends implement an **authentication flow**, but the exact implementation
 
 These backends grant a set of [scopes](https://www.starlette.io/authentication/#authcredentials) when authentication succeeds.
 
-Base backends are **user model agnostic**, although we recommend you implement the interface specified by `starlette.authentication.BaseUser` (see also [Starlette authentication](https://www.starlette.io/authentication/)).
+Although base backends are **user model agnostic**, we recommend you implement the interface specified by `starlette.authentication.BaseUser` (see also [Starlette authentication](https://www.starlette.io/authentication/)).
 
 They are available at `starlette_auth_toolkit.base.backends`.
 
@@ -184,7 +184,7 @@ class BasicAuthBackend(backends.BasicAuthBackend):
 
 **Abstract methods**
 
-- `.verify(self, username: str, password: str) -> Optional[BaseUser]`
+- _async_ `.verify(self, username: str, password: str) -> Optional[BaseUser]`
 
   If `username` and `password` are valid, return the corresponding user. Otherwise, return `None`.
 
@@ -220,7 +220,7 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 
 **Abstract methods**
 
-- `.verify(self, token: str) -> Optional[BaseUser]`
+- _async_ `.verify(self, token: str) -> Optional[BaseUser]`
 
   If `token` refers to a valid token, return the corresponding user. Otherwise, return `None`.
 
