@@ -1,6 +1,6 @@
 import pytest
 
-from starlette_auth_toolkit.passwords import (
+from starlette_auth_toolkit.cryptography import (
     CryptHasher,
     Hasher,
     MultiHasher,

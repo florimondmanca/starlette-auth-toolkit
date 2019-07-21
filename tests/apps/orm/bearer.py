@@ -12,7 +12,7 @@ from starlette_auth_toolkit.base.backends import (
     BasicAuthBackend,
     BearerAuthBackend,
 )
-from starlette_auth_toolkit.passwords import generate_random_string
+from starlette_auth_toolkit.cryptography import generate_random_string
 
 from ..utils import get_base_app
 from .models import Token, User, database

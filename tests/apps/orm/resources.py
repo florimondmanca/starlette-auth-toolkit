@@ -1,5 +1,5 @@
-from starlette_auth_toolkit.passwords import PBKDF2Hasher
 from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
 
 
 def get_user_model():

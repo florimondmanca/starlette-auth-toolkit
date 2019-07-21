@@ -2,7 +2,7 @@ import inspect
 import typing
 
 from ..base.helpers import BaseAuthenticate
-from ..passwords import BaseHasher
+from ..cryptography import BaseHasher
 
 import orm
 

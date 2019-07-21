@@ -122,7 +122,7 @@ This package provides password hashing utilities built on top of [PassLib](https
 
 ```python
 import asyncio
-from starlette_auth_toolkit.passwords import PBKDF2Hasher
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
 
 async def main():
     # Instanciate a hasher:
@@ -141,7 +141,7 @@ asyncio.run(main())
 - Blocking: `.make_sync()` / `.verify_sync()`
 
 ```python
-from starlette_auth_toolkit.passwords import PBKDF2Hasher
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
 
 # Instanciate a hasher:
 hasher = PBKDF2Hasher()
@@ -160,7 +160,7 @@ If you need to change the hash algorithm (say from PBKDF2 to Argon2), you will t
 `MultiHasher` was designed to solve this problem:
 
 ```python
-from starlette_auth_toolkit.passwords import Argon2Hasher, PBKDF2Hasher, MultiHasher
+from starlette_auth_toolkit.cryptography import Argon2Hasher, PBKDF2Hasher, MultiHasher
 
 hasher = MultiHasher([Argon2Hasher(), PBKDF2Hasher()])
 ```
@@ -193,7 +193,7 @@ if hasher.needs_update(pwd_hash):
 For advanced use cases, use `Hasher` and pass one of the algorithms listed in [passlib.hash](https://passlib.readthedocs.io/en/stable/lib/passlib.hash.html):
 
 ```python
-from starlette_auth_toolkit.passwords import Hasher
+from starlette_auth_toolkit.cryptography import Hasher
 
 hasher = Hasher(algorithm="pbkdf2_sha512")
 ```
@@ -245,7 +245,7 @@ A ready-to-use implementation of `BaseAuthenticate` using an `orm` user model.
 ```python
 from starlette.applications import Starlette
 from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
-from starlette_auth_toolkit.passwords import PBKDF2Hasher
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
 
 from myproject.models import User  # DIY
 
