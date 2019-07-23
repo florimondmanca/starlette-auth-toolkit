@@ -79,30 +79,3 @@ class BearerAuthBackend(_SchemeAuthBackend):
 
     async def verify(self, token: str) -> typing.Optional[auth.BaseUser]:
         raise NotImplementedError
-
-
-class APIKeyAuthBackend(AuthBackend):
-    def __init__(self, *, header: str = None, query_param: str = None):
-        if header is not None:
-            self._key_getter = lambda conn: conn.headers.get(header)
-        elif query_param is not None:
-            self._key_getter = lambda conn: conn.query_param.get(query_param)
-        else:
-            raise ValueError("expected 'header' or 'query_param' to be given")
-
-    async def get_api_key(self, conn: HTTPConnection) -> typing.Optional[str]:
-        return self._key_getter(conn)
-
-    async def authenticate(self, conn: HTTPConnection) -> AuthResult:
-        api_key = self.get_api_key(conn)
-        if api_key is None:
-            return None
-
-        scopes = await self.verify(api_key)
-        if scopes is None:
-            raise InvalidCredentials
-
-        return auth.AuthCredentials(scopes), auth.UnauthenticatedUser()
-
-    async def verify(self, api_key: str) -> typing.Optional[typing.List[str]]:
-        raise NotImplementedError
