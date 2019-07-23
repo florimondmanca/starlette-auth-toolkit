@@ -16,7 +16,7 @@ setup(
     author_email="florimond.manca@gmail.com",
     description=(
         "Authentication backends and helpers for "
-        "Starlette-based apps and frameworks"
+        "Starlette-based ASGI apps and frameworks"
     ),
     long_description=README,
     long_description_content_type="text/markdown",

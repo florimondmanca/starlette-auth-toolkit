@@ -5,7 +5,7 @@
 ![python](https://img.shields.io/pypi/pyversions/starlette-auth-toolkit.svg)
 [![black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
 
-Authentication backends and helpers for Starlette-based apps and frameworks.
+Authentication backends and helpers for Starlette-based ASGI apps and frameworks.
 
 > **Note**: documentation is in progress. In the meantime, feel free to [read the source code](https://github.com/florimondmanca/starlette-auth-toolkit/tree/master/starlette_auth_toolkit).
 
