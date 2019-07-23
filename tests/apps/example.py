@@ -12,10 +12,10 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 
+from starlette_auth_toolkit.backends import MultiAuth
 from starlette_auth_toolkit.base.backends import (
     BasicAuthBackend,
     BearerAuthBackend,
-    MultiAuthBackend,
 )
 from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
 from starlette_auth_toolkit.cryptography import (
@@ -95,7 +95,7 @@ class BearerAuth(BearerAuthBackend):
         return token.token
 
 
-auth_backend = MultiAuthBackend([BasicAuth(), BearerAuth()])
+auth_backend = MultiAuth([BasicAuth(), BearerAuth()])
 
 
 # API schemas

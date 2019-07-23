@@ -27,6 +27,7 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 - [Base backends](#base-backends)
+- [Backends](#backends)
 - [Password hashers](#password-hashers)
 - [Authentication helpers](#authentication-helpers)
 
@@ -223,6 +224,33 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 - _async_ `.verify(self, token: str) -> Optional[BaseUser]`
 
   If `token` refers to a valid token, return the corresponding user. Otherwise, return `None`.
+
+**Scopes**
+
+- `authenticated`
+
+## Backends
+
+Authentication backends listed here are ready-to-use implementations and are available in the `backends` module.
+
+### `MultiAuth`
+
+This backend allows you to support multiple authentication methods in your application. `MultiAuth` attempts authenticating using the given `backends` in order until one succeeds (or all fail).
+
+**Example**
+
+```python
+from starlette_auth_toolkit.backends import MultiAuth
+
+from myproject.auth import TokenAuth, BasicAuth  # TODO
+
+# Allow to authenticate using either a token or username/password credentials.
+backend = MultiAuth([TokenAuth(), BasicAuth()])
+```
+
+**Parameters**
+
+- `backends` (`List[AuthBackend]`): a list of authentication backends, which determines which authentication methods clients can use to authenticate.
 
 **Scopes**
 

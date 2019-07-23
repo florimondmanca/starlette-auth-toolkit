@@ -1,7 +1,5 @@
 import base64
 import binascii
-import importlib
-import inspect
 import typing
 
 from starlette import authentication as auth
@@ -108,46 +106,3 @@ class APIKeyAuthBackend(AuthBackend):
 
     async def verify(self, api_key: str) -> typing.Optional[typing.List[str]]:
         raise NotImplementedError
-
-
-BackendDeclaration = typing.Union[str, AuthBackend]
-
-
-def load_backends(
-    declarations: typing.List[BackendDeclaration]
-) -> typing.List[AuthBackend]:
-    backends = []
-    for decl in declarations:
-        if isinstance(decl, str):
-            module_name, sep, class_name = decl.partition(":")
-            assert sep == ":", (
-                "Backend must be formatted as 'path.to.module:classname', "
-                f"got {decl}"
-            )
-            module = importlib.import_module(module_name)
-            backend_cls = getattr(module, class_name)
-            backend = backend_cls()
-        else:
-            backend = decl() if inspect.isclass(decl) else decl
-            assert isinstance(backend, AuthBackend)
-            backends.append(backend)
-    return backends
-
-
-class MultiAuthBackend(AuthBackend):
-    def __init__(self, declarations: typing.List[BackendDeclaration]):
-        self.backends = load_backends(declarations)
-
-    async def authenticate(self, conn: HTTPConnection) -> AuthResult:
-        for backend in self.backends:
-            try:
-                auth_result = await backend.authenticate(conn)
-            except auth.AuthenticationError as exc:
-                raise exc from None
-
-            if auth_result is None:
-                continue
-
-            return auth_result
-
-        return None

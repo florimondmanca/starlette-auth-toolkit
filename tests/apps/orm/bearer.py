@@ -7,8 +7,8 @@ from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from starlette_auth_toolkit.backends import MultiAuth
 from starlette_auth_toolkit.base.backends import (
-    MultiAuthBackend,
     BasicAuthBackend,
     BearerAuthBackend,
 )
@@ -38,7 +38,7 @@ class UserCredentials(typesystem.Schema):
 
 
 def get_app() -> Starlette:
-    app = get_base_app(backend=MultiAuthBackend([BearerAuth(), BasicAuth()]))
+    app = get_base_app(backend=MultiAuth([BearerAuth(), BasicAuth()]))
 
     @app.route("/users", methods=["post"])
     async def create_user(request: Request):

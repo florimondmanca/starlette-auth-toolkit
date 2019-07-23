@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+### Added
+
+- Add `backends.MultiAuth` for providing multiple authentication methods.
+
 ## [v0.4.0] - 2019-07-21
 
 ### Added
