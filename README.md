@@ -237,6 +237,8 @@ Authentication backends listed here are ready-to-use implementations and are ava
 
 This backend allows you to support multiple authentication methods in your application. `MultiAuth` attempts authenticating using the given `backends` in order until one succeeds (or all fail).
 
+**Note**: if any backend fails with an `AuthenticationError` (e.g. because some credentials were provided but they were invalid), `MultiAuth` will propagate the exception and no further attempts will be made — even if a later backend would have succeeded.
+
 **Example**
 
 ```python
