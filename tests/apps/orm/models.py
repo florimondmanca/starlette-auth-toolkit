@@ -1,13 +1,13 @@
 import databases
 import orm
 import sqlalchemy
+from orm.models import QuerySet
 from starlette.authentication import BaseUser
 
-from orm.models import QuerySet
+from .resources import hasher
 
 database = databases.Database("sqlite:///tests/test.db", force_rollback=True)
 metadata = sqlalchemy.MetaData()
-from .resources import hasher
 
 
 class UserQuerySet(QuerySet):

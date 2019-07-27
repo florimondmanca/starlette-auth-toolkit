@@ -7,6 +7,19 @@ All notable changes to this project are documented here. The format of this docu
 ### Added
 
 - Add `backends.MultiAuth` for providing multiple authentication methods.
+- `contrib.orm.ModelBasicAuth` backend.
+
+### Changed
+
+- Base backends were renamed:
+  - `BasicAuthBackend` -> `BaseBasicAuth`
+  - `BearerAuthBackend` -> `BaseTokenAuth`
+- The renamed `BaseTokenAuth` now uses the `Token` header scheme instead of `Bearer`.
+
+### Removed
+
+- `BaseAuthenticate` was removed in favor of `BasicAuth.verify`.
+- `contrib.orm.ModelAuthenticate` was removed in favor of `contrib.orm.ModelBasicAuth`.
 
 ## [v0.4.0] - 2019-07-21
 

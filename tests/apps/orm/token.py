@@ -8,28 +8,24 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from starlette_auth_toolkit.backends import MultiAuth
-from starlette_auth_toolkit.base.backends import (
-    BasicAuthBackend,
-    BearerAuthBackend,
-)
+from starlette_auth_toolkit.base.backends import BaseTokenAuth
+from starlette_auth_toolkit.contrib.orm import ModelBasicAuth
 from starlette_auth_toolkit.cryptography import generate_random_string
 
 from ..utils import get_base_app
 from .models import Token, User, database
-from .resources import authenticate, hasher
+from .resources import hasher
+
+basic_auth = ModelBasicAuth(User, hasher=hasher)
 
 
-class BasicAuth(BasicAuthBackend):
-    verify = staticmethod(authenticate)
-
-
-class BearerAuth(BearerAuthBackend):
+class TokenAuth(BaseTokenAuth):
     async def verify(self, token: str) -> typing.Optional[User]:
         try:
             token = await Token.objects.select_related("user").get(token=token)
         except orm.NoMatch:
             return None
-        return token.token
+        return token.user
 
 
 class UserCredentials(typesystem.Schema):
@@ -38,7 +34,7 @@ class UserCredentials(typesystem.Schema):
 
 
 def get_app() -> Starlette:
-    app = get_base_app(backend=MultiAuth([BearerAuth(), BasicAuth()]))
+    app = get_base_app(backend=MultiAuth([TokenAuth(), basic_auth]))
 
     @app.route("/users", methods=["post"])
     async def create_user(request: Request):
@@ -52,7 +48,7 @@ def get_app() -> Starlette:
     @app.route("/tokens", methods=["post"])
     async def obtain_token(request: Request):
         credentials = UserCredentials.validate(await request.json())
-        user = await authenticate(
+        user = await basic_auth.verify(
             credentials["username"], credentials["password"]
         )
         if user is None:

@@ -13,11 +13,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 
 from starlette_auth_toolkit.backends import MultiAuth
-from starlette_auth_toolkit.base.backends import (
-    BasicAuthBackend,
-    BearerAuthBackend,
-)
-from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
+from starlette_auth_toolkit.base.backends import BaseTokenAuth
+from starlette_auth_toolkit.contrib.orm import ModelBasicAuth
 from starlette_auth_toolkit.cryptography import (
     PBKDF2Hasher,
     generate_random_string,
@@ -71,31 +68,22 @@ engine = sqlalchemy.create_engine(str(database.url))
 metadata.create_all(engine)
 
 
-# Hashers and authentication helpers
-
-
-hasher = PBKDF2Hasher()
-authenticate = ModelAuthenticate(User, hasher=hasher)
-
-
 # Authentication backends
 
 
-class BasicAuth(BasicAuthBackend):
-    async def verify(self, username: str, password: str):
-        return await authenticate(username, password)
+hasher = PBKDF2Hasher()
 
 
-class BearerAuth(BearerAuthBackend):
+class TokenAuth(BaseTokenAuth):
     async def verify(self, token: str) -> typing.Optional[User]:
         try:
             token = await Token.objects.select_related("user").get(token=token)
         except orm.NoMatch:
             return None
-        return token.token
+        return token.user
 
 
-auth_backend = MultiAuth([BasicAuth(), BearerAuth()])
+auth_backend = MultiAuth([ModelBasicAuth(User, hasher=hasher), TokenAuth()])
 
 
 # API schemas
@@ -108,24 +96,23 @@ class UserCredentials(typesystem.Schema):
 
 # Application
 
-
-def on_auth_error(request, exc):
-    return PlainTextResponse(str(exc), status_code=401)
-
-
 app = Starlette()
+
 app.add_middleware(
-    AuthenticationMiddleware, backend=auth_backend, on_error=on_auth_error
+    AuthenticationMiddleware,
+    backend=auth_backend,
+    on_error=lambda _, exc: PlainTextResponse(str(exc), status_code=401),
 )
+
 app.add_event_handler("startup", database.connect)
 app.add_event_handler("shutdown", database.disconnect)
 
 
-@app.route("/")
+@app.route("/protected")
 @requires("authenticated")
-async def home(request):
+async def protected(request):
     """Example protected route."""
-    return JSONResponse({"message": "Hello, authenticated world!"})
+    return JSONResponse({"message": f"Hello, {request.user.username}!"})
 
 
 @app.route("/users", methods=["post"])

@@ -1,20 +1,22 @@
 import inspect
 import typing
 
-from ..base.helpers import BaseAuthenticate
-from ..cryptography import BaseHasher
-
 import orm
 
-UserModel = typing.Type[orm.Model]
+from ..base.backends import BaseBasicAuth
+from ..cryptography import BaseHasher
+
+_UserModel = typing.Type[orm.Model]
+_User = orm.Model
 
 
-class ModelAuthenticate(BaseAuthenticate):
-    _model: UserModel
+class ModelBasicAuth(BaseBasicAuth):
+    _model: _UserModel
 
     def __init__(
         self,
-        model: typing.Union[UserModel, typing.Callable[[], UserModel]],
+        model: typing.Union[_UserModel, typing.Callable[[], _UserModel]],
+        *,
         hasher: BaseHasher,
         password_field: str = "password",
     ):
@@ -27,20 +29,20 @@ class ModelAuthenticate(BaseAuthenticate):
         self.password_field = password_field
 
     @property
-    def model(self) -> UserModel:
+    def model(self) -> _UserModel:
         try:
             return self._model
         except AttributeError:
             self._model = self._get_model()
             return self._model
 
-    async def find_user(self, username: str) -> typing.Optional[orm.Model]:
+    async def find_user(self, username: str) -> typing.Optional[_User]:
         try:
             return await self.model.objects.get(username=username)
         except orm.NoMatch:
             return None
 
-    async def verify_password(self, user: orm.Model, password: str):
+    async def verify_password(self, user: _User, password: str):
         password_hash = getattr(user, self.password_field)
         valid = await self.hasher.verify(password, password_hash)
 

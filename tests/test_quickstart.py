@@ -10,16 +10,21 @@ def fixture_client():
         yield client
 
 
-def test_quickstart(client):
-    r = client.get("/")
+@pytest.fixture(name="protected_path")
+def fixture_protected_path() -> str:
+    return "/protected"
+
+
+def test_quickstart(client, protected_path):
+    r = client.get(protected_path)
     assert r.status_code == 403
 
     for username, password in (("alice", "alicepwd"), ("bob", "bobpwd")):
-        r = client.get("/", auth=(username, password))
+        r = client.get(protected_path, auth=(username, password))
         assert r.status_code == 200
 
-        r = client.get("/", auth=(username, "wrong"))
+        r = client.get(protected_path, auth=(username, "wrong"))
         assert r.status_code == 401
 
-        r = client.get("/", auth=("wrong", password))
+        r = client.get(protected_path, auth=("wrong", password))
         assert r.status_code == 401

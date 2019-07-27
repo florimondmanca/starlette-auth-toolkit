@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from .apps.orm.bearer import get_app
+from .apps.orm.token import get_app
 
 
 @pytest.fixture(name="client")
@@ -26,8 +26,8 @@ def obtain_token(client, credentials: dict) -> str:
     return r.json()["token"]
 
 
-def authorize_bearer(client, token: str):
-    r = client.get("/", headers={"Authorization": f"Bearer {token}"})
+def authorize_token(client, token: str):
+    r = client.get("/", headers={"Authorization": f"Token {token}"})
     assert r.status_code == 200
 
 
@@ -36,4 +36,4 @@ def test_user_journey(client):
     register(client, credentials)
     authorize_basic(client, credentials)
     token = obtain_token(client, credentials)
-    authorize_bearer(client, token)
+    authorize_token(client, token)

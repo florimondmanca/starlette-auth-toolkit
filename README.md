@@ -15,7 +15,7 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 - User model-agnostic.
 - Built-in password hashing powered by [PassLib].
 - Hash migration support.
-- Built-in support for common authentication flows, including Basic and Bearer authentication.
+- Built-in support for common authentication flows, including Basic and Token authentication.
 - Support for multiple authentication backends.
 - Easy integration with [`orm`].
 
@@ -28,8 +28,8 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 - [Quickstart](#quickstart)
 - [Base backends](#base-backends)
 - [Backends](#backends)
+- [Authenticating in views](#authenticating-in-views)
 - [Password hashers](#password-hashers)
-- [Authentication helpers](#authentication-helpers)
 
 ## Installation
 
@@ -45,36 +45,29 @@ import typing
 from starlette.applications import Starlette
 from starlette.authentication import requires
 from starlette.middleware.authentication import AuthenticationMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, PlainTextResponse
 
-from starlette_auth_toolkit.base.backends import BasicAuthBackend
-from starlette_auth_toolkit.base.helpers import BaseAuthenticate
+from starlette_auth_toolkit.base.backends import BaseBasicAuth
 from starlette_auth_toolkit.cryptography import PBKDF2Hasher
 
+# Password hasher
+hasher = PBKDF2Hasher()
 
-# User model
 
+# Example user model
 class User(typing.NamedTuple):
     username: str
     password: str
 
 
-# Password hasher
-
-hasher = PBKDF2Hasher()
-
-
-# Fake storage
-
+# Fake user storage
 USERS = {
     "alice": User(username="alice", password=hasher.make_sync("alicepwd")),
     "bob": User(username="bob", password=hasher.make_sync("bobpwd")),
 }
 
-
-# Authentication helper
-
-class Authenticate(BaseAuthenticate):
+# Authentication backend
+class BasicAuth(BaseBasicAuth):
     async def find_user(self, username: str):
         return USERS.get(username)
 
@@ -82,28 +75,20 @@ class Authenticate(BaseAuthenticate):
         return await hasher.verify(password, user.password)
 
 
-authenticate = Authenticate()
-
-
-# Authentication backend
-
-class BasicAuth(BasicAuthBackend):
-    async def verify(
-        self, username: str, password: str
-    ) -> typing.Optional[User]:
-        return await authenticate(username, password)
-
-
 # Application
 
 app = Starlette()
-app.add_middleware(AuthenticationMiddleware, backend=BasicAuth())
+
+app.add_middleware(
+    AuthenticationMiddleware,
+    backend=BasicAuth(),
+    on_error=lambda _, exc: PlainTextResponse(str(exc), status_code=401),
+)
 
 
-@app.route("/")
+@app.route("/protected")
 @requires("authenticated")
-async def home(request):
-    """Example protected route."""
+async def protected(request):
     return JSONResponse({"message": f"Hello, {request.user.username}!"})
 
 ```
@@ -113,28 +98,28 @@ Save this file as `app.py`. Then, assuming you have [uvicorn](https://www.uvicor
 - Anonymous request:
 
 ```bash
-curl http://localhost:8000 -i
+curl -i http://localhost:8000/protected
 ```
 
 ```http
-HTTP/1.1 401 Unauthorized
-date: Sun, 21 Jul 2019 17:54:00 GMT
+HTTP/1.1 403 Forbidden
+date: Tue, 23 Jul 2019 20:44:52 GMT
 server: uvicorn
-content-length: 52
+content-length: 9
 content-type: text/plain; charset=utf-8
 
-Could not authenticate with the provided credentials
+Forbidden
 ```
 
 - Authenticated request:
 
 ```bash
-curl -u alice:alicepwd http://localhost:8000
+curl -i -u alice:alicepwd http://localhost:8000/protected
 ```
 
 ```http
 HTTP/1.1 200 OK
-date: Sun, 21 Jul 2019 17:54:28 GMT
+date: Tue, 23 Jul 2019 20:45:24 GMT
 server: uvicorn
 content-length: 27
 content-type: application/json
@@ -154,9 +139,9 @@ Although base backends are **user model agnostic**, we recommend you implement t
 
 They are available at `starlette_auth_toolkit.base.backends`.
 
-### `BasicAuthBackend`
+### `BaseBasicAuth`
 
-Implementation of the [Basic authentication scheme](https://tools.ietf.org/html/rfc7617).
+Base implementation of the [Basic authentication scheme](https://tools.ietf.org/html/rfc7617).
 
 **Request header format**
 
@@ -171,9 +156,9 @@ where `{credentials}` refers to the base64 encoding of `{username}:{password}`.
 ```python
 # myapp/auth.py
 from starlette.authentication import SimpleUser  # or a custom user model
-from starlette_auth_toolkit.base import backends
+from starlette_auth_toolkit.base.backends import BaseBasicAuth
 
-class BasicAuthBackend(backends.BasicAuthBackend):
+class BasicAuth(BaseBasicAuth):
     async def verify(self, username: str, password: str):
         # In practice, request the database to find the user associated
         # to `username`, and validate that its password hash matches the
@@ -193,14 +178,14 @@ class BasicAuthBackend(backends.BasicAuthBackend):
 
 - `authenticated`
 
-### `BearerAuthBackend`
+### `BaseTokenAuth`
 
-Implementation of the [Bearer authentication scheme](https://tools.ietf.org/html/rfc6750), also known as _Token authentication_.
+Base implementation of token authentication, a simplified version of the [Bearer authentication scheme](https://tools.ietf.org/html/rfc6750).
 
 **Request header format**
 
 ```http
-Authorization: Bearer {token}
+Authorization: Token {token}
 ```
 
 **Example**
@@ -208,9 +193,9 @@ Authorization: Bearer {token}
 ```python
 # myapp/auth.py
 from starlette.authentication import SimpleUser  # or a custom user model
-from starlette_auth_toolkit.base import backends
+from starlette_auth_toolkit.base.backends import BaseTokenAuth
 
-class BearerAuthBackend(backends.BearerAuthBackend):
+class TokenAuth(BaseTokenAuth):
     async def verify(self, token: str):
         # In practice, request the database to find the token object
         # associated to `token`, and return its associated user.
@@ -231,7 +216,41 @@ class BearerAuthBackend(backends.BearerAuthBackend):
 
 ## Backends
 
-Authentication backends listed here are ready-to-use implementations and are available in the `backends` module.
+Authentication backends listed here are ready-to-use implementations and are available in the `backends` module, unless specified otherwise.
+
+### `contrib.orm.ModelBasicAuth`
+
+A ready-to-use implementation of `BaseBasicAuth` using an `orm` user model.
+
+**Note**: [`orm`] must be installed to use this backend.
+
+**Example**
+
+```python
+from starlette.applications import Starlette
+from starlette_auth_toolkit.contrib.orm import ModelBasicAuth
+from starlette_auth_toolkit.cryptography import PBKDF2Hasher
+
+from myproject.models import User  # DIY
+
+hasher = PBKDF2Hasher()
+
+app = Starlette()
+app.add_middleware(
+    AuthenticationMiddleware,
+    backend=ModelBasicAuth(User, hasher=hasher)
+)
+```
+
+**Parameters**
+
+- `model` (`orm.Model` or `() -> orm.Model`): the user model (or a callable for lazy loading).
+- `hasher` (`BaseHasher`): a [password hasher](#password-hashers) — the same one used to hash user passwords.
+- `password_field` (`str`, optional): field where password hashes are stored on user objects. Defaults to `"password"`.
+
+**Scopes**
+
+- `authenticated`
 
 ### `MultiAuth`
 
@@ -345,76 +364,21 @@ from starlette_auth_toolkit.cryptography import Hasher
 hasher = Hasher(algorithm="pbkdf2_sha512")
 ```
 
-## Authentication helpers
+## Authenticating in views
 
-Web applications often need to exchange user credentials (username and password) against the actual user.
-
-Such an exchange is typically implemented as an `authenticate` utility function:
+If you need to authenticate a user inside a view, i.e. exchange a pair of `username` and `password` for the actual `user`, use your `BasicAuth` backend:
 
 ```python
-user = await authenticate(username, password)
-```
+auth = MyBasicAuth()
 
-Helpers listed here make it easier to build a secure `authenticate` utility function, which you can then reuse when building your authentication backends.
-
-### `base.helpers.BaseAuthenticate`
-
-Base class for authentication helpers.
-
-**Abstract methods**
-
-- _async_ `.find_user(self, username: str) -> Optional[BaseUser]`
-
-  Return the user associated to `username`, or `None` if none exist.
-
-- _async_ `.verify_password(self, user: BaseUser, password: str) -> bool`
-
-  Given a user, check that the given `password` is valid.
-  For example, compare the given `password` against the user's password hash.
-
-**Methods**
-
-- _async_ `.__call__(self, username: str, password: str) -> Optional[BaseUser]`
-
-  Authenticate a user using the following algorithm:
-
-  1. Find a `user` using `.find_user()`
-  2. Verify the password using `.verify_password()`
-  3. Return `user` if it exists and the password is valid, and `None` otherwise.
-
-### `contrib.orm.ModelAuthenticate`
-
-A ready-to-use implementation of `BaseAuthenticate` using an `orm` user model.
-
-**Note**: [`orm`] must be installed to use this helper.
-
-**Example**
-
-```python
-from starlette.applications import Starlette
-from starlette_auth_toolkit.contrib.orm import ModelAuthenticate
-from starlette_auth_toolkit.cryptography import PBKDF2Hasher
-
-from myproject.models import User  # DIY
-
-hasher = PBKDF2Hasher()
-authenticate = ModelAuthenticate(User, hasher=hasher)
-
-app = Starlette()
-
-@app.route("/")
-async def home(request):
+@app.route("/guard")
+async def logs_user_in(request):
     data = await request.json()
-    username, password = data["username"], data["password"]
-    user: User = await authenticate(username, password)
+    username = data["username"]
+    password = data["password"]
+    user = await auth.verify(username, password)
     # ...
 ```
-
-**Parameters**
-
-- `model` (`orm.Model` or `() -> orm.Model`): the user model (or a callable for lazy loading).
-- `hasher` (`BaseHasher`): a [password hasher](#password-hashers) — the same one used to hash user passwords.
-- `password_field` (`str`, optional): field where password hashes are stored on user objects. Defaults to `"password"`.
 
 ## Contributing
 

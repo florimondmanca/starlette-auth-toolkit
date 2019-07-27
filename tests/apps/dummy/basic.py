@@ -10,7 +10,7 @@ USERNAME = "user"
 PASSWORD = "s3kr3t"
 
 
-class BasicAuth(backends.BasicAuthBackend):
+class BasicAuth(backends.BaseBasicAuth):
     async def verify(
         self, username: str, password: str
     ) -> typing.Optional[SimpleUser]:

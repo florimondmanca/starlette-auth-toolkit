@@ -14,7 +14,7 @@ class AuthBackend(auth.AuthenticationBackend):
         raise NotImplementedError
 
 
-class _SchemeAuthBackend(AuthBackend):
+class _BaseSchemeAuth(AuthBackend):
     scheme: str
 
     def get_credentials(self, conn: HTTPConnection) -> typing.Optional[str]:
@@ -48,7 +48,7 @@ class _SchemeAuthBackend(AuthBackend):
         return auth.AuthCredentials(["authenticated"]), user
 
 
-class BasicAuthBackend(_SchemeAuthBackend):
+class BaseBasicAuth(_BaseSchemeAuth):
     scheme = "Basic"
 
     def parse_credentials(self, credentials: str) -> typing.List[str]:
@@ -64,14 +64,29 @@ class BasicAuthBackend(_SchemeAuthBackend):
 
         return [username, password]
 
+    async def find_user(self, username: str) -> typing.Optional[auth.BaseUser]:
+        raise NotImplementedError
+
+    async def verify_password(self, user: auth.BaseUser, password: str) -> bool:
+        raise NotImplementedError
+
     async def verify(
         self, username: str, password: str
     ) -> typing.Optional[auth.BaseUser]:
-        raise NotImplementedError
+        user = await self.find_user(username=username)
+
+        if user is None:
+            return None
+
+        valid = await self.verify_password(user, password)
+        if not valid:
+            return None
+
+        return user
 
 
-class BearerAuthBackend(_SchemeAuthBackend):
-    scheme = "Bearer"
+class BaseTokenAuth(_BaseSchemeAuth):
+    scheme = "Token"
 
     def parse_credentials(self, credentials: str) -> typing.List[str]:
         token = credentials
