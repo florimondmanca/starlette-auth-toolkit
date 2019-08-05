@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format of this docu
 
 ## [Unreleased]
 
+## [v0.5.0] - 2019-08-05
+
 ### Added
 
 - Add `backends.MultiAuth` for providing multiple authentication methods.
@@ -62,7 +64,8 @@ All notable changes to this project are documented here. The format of this docu
 - Contributing guidelines.
 - License.
 
-[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.5.0...HEAD
+[v0.5.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.3.0...v0.4.0
 [v0.3.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/florimondmanca/starlette-auth-toolkit/compare/v0.1.0...v0.2.0

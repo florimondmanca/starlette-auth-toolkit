@@ -9,7 +9,7 @@ PASSWORDS_REQUIREMENTS = ["passlib>=1.7, <2"]
 
 setup(
     name="starlette-auth-toolkit",
-    version="0.4.0",
+    version="0.5.0",
     author="Florimond Manca",
     author_email="florimond.manca@gmail.com",
     description=(
