@@ -4,6 +4,7 @@ from starlette.exceptions import ExceptionMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from starlette_auth_toolkit.permissions import PermissionsMiddleware, requires
 
@@ -11,8 +12,14 @@ from .apps.dummy.basic import PASSWORD, USERNAME, BasicAuth
 
 
 async def raw_asgi(scope, receive, send):
-    response = PlainTextResponse("OK")
-    await response(scope, receive, send)
+    if scope["type"] == "http":
+        response = PlainTextResponse("OK")
+        await response(scope, receive, send)
+    else:
+        ws = WebSocket(scope, receive, send)
+        await ws.accept()
+        await ws.send_text("OK")
+        await ws.close()
 
 
 starlette = Starlette()
@@ -21,6 +28,13 @@ starlette = Starlette()
 @starlette.route("/", methods=["get", "post"])
 async def home(_):
     return PlainTextResponse("OK")
+
+
+@starlette.websocket_route("/chat")
+async def chat(ws):
+    await ws.accept()
+    await ws.send_text("OK")
+    await ws.close()
 
 
 def via_middleware(app, **kwargs):
@@ -70,9 +84,7 @@ def fixture_client(request, app, status_code, redirect):
         ("post", (USERNAME, PASSWORD), True),
     ],
 )
-def test_permissions_middleware(
-    client, method, auth, status_code, redirect, success
-):
+def test_http_permissions(client, method, auth, status_code, redirect, success):
     r = getattr(client, method)("/", auth=auth)
     if success:
         assert r.status_code == 200
@@ -81,3 +93,18 @@ def test_permissions_middleware(
         assert r.headers["Location"] == redirect
     else:
         assert r.status_code == (status_code or 403)
+
+
+@pytest.mark.parametrize(
+    "auth, success", [(None, False), ((USERNAME, PASSWORD), True)]
+)
+def test_websocket_permissions(client, auth, success):
+    if success:
+        with client.websocket_connect("/chat", auth=auth):
+            return
+
+    with pytest.raises(WebSocketDisconnect) as ctx:
+        with client.websocket_connect("/chat", auth=auth):
+            pass
+    exc: WebSocketDisconnect = ctx.value
+    assert exc.code == 1000
