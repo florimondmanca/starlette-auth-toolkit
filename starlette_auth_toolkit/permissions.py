@@ -16,6 +16,8 @@ class PermissionsMiddleware:
         redirect: str = None,
         methods: typing.Sequence[str] = None,
     ):
+        if methods is None:
+            methods = []
         self.app = app
         self.scopes = scopes
         self.status_code = status_code
@@ -34,7 +36,7 @@ class PermissionsMiddleware:
     async def handle_http(self, scope: Scope, receive: Receive, send: Send):
         request = Request(scope, receive)
 
-        if request.method.lower() in self.methods:
+        if not self.methods or request.method.lower() in self.methods:
             if not self.has_required_scope(request):
                 if self.redirect is not None:
                     response = self.redirect_response(self.redirect)
@@ -69,12 +71,22 @@ def requires(
     methods: typing.Sequence[str] = None
 ):
     def decorate(app: ASGIApp) -> ASGIApp:
-        return PermissionsMiddleware(
-            app,
-            scopes=scopes,
-            status_code=status_code,
-            redirect=redirect,
-            methods=methods,
-        )
+        try:
+            app.app = PermissionsMiddleware(
+                app.app,
+                scopes=scopes,
+                status_code=status_code,
+                redirect=redirect,
+                methods=methods,
+            )
+            return app
+        except AttributeError:
+            return PermissionsMiddleware(
+                app,
+                scopes=scopes,
+                status_code=status_code,
+                redirect=redirect,
+                methods=methods,
+            )
 
     return decorate

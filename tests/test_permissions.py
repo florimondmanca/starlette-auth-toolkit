@@ -42,6 +42,11 @@ def via_middleware(app, **kwargs):
 
 
 def via_decorator(app, **kwargs):
+    if isinstance(app, Starlette):
+        # As if we used @requires() at declaration time.
+        for route in app.router.routes:
+            requires("authenticated", **kwargs)(route)
+        return app
     return requires("authenticated", **kwargs)(app)
 
 
