@@ -284,6 +284,22 @@ backend = MultiAuth([TokenAuth(), BasicAuth()])
 
 - `authenticated`
 
+## Authenticating in views
+
+If you need to authenticate a user inside a view, i.e. exchange a pair of `username` and `password` for the actual `user`, use your `BasicAuth` backend:
+
+```python
+auth = MyBasicAuth()
+
+@app.route("/guard")
+async def logs_user_in(request):
+    data = await request.json()
+    username = data["username"]
+    password = data["password"]
+    user = await auth.verify(username, password)
+    # ...
+```
+
 ## Password hashers
 
 This package provides password hashing utilities built on top of [PassLib].
@@ -369,22 +385,6 @@ For advanced use cases, use `Hasher` and pass one of the algorithms listed in [p
 from starlette_auth_toolkit.cryptography import Hasher
 
 hasher = Hasher(algorithm="pbkdf2_sha512")
-```
-
-## Authenticating in views
-
-If you need to authenticate a user inside a view, i.e. exchange a pair of `username` and `password` for the actual `user`, use your `BasicAuth` backend:
-
-```python
-auth = MyBasicAuth()
-
-@app.route("/guard")
-async def logs_user_in(request):
-    data = await request.json()
-    username = data["username"]
-    password = data["password"]
-    user = await auth.verify(username, password)
-    # ...
 ```
 
 ## Contributing
