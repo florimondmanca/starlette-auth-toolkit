@@ -1,13 +1,18 @@
+import os
+
 import pytest
 from starlette.testclient import TestClient
-
-from .apps.orm.token import get_app
 
 
 @pytest.fixture(name="client")
 def fixture_client():
+    from .apps.orm.token import get_app
+    from .apps.orm.models import database
+
     with TestClient(get_app()) as client:
         yield client
+
+    os.remove(database.url.database)
 
 
 def register(client, credentials: dict) -> tuple:

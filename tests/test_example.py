@@ -4,16 +4,17 @@ import pytest
 from starlette.testclient import TestClient
 
 
-os.environ["DATABASE_URL"] = "sqlite:///tests/example.db"
-os.environ["TESTING"] = "true"
-
-
 @pytest.fixture(name="client")
 def fixture_client():
-    from .apps.example import app
+    os.environ["DATABASE_URL"] = "sqlite:///tests/example.db"
+    os.environ["TESTING"] = "true"
+
+    from .apps.example import app, database
 
     with TestClient(app) as client:
         yield client
+
+    os.remove(database.url.database)
 
 
 @pytest.fixture(name="protected_path")

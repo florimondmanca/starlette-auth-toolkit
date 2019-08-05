@@ -19,6 +19,7 @@ crypt = CryptHasher()
 HASHERS = [pbkdf2, bcrypt, argon2, crypt]
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("hasher", HASHERS)
 async def test_simple_hasher(hasher):
     hashed = await hasher.make("hello")
@@ -26,6 +27,7 @@ async def test_simple_hasher(hasher):
     assert not hasher.needs_update(hashed)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("hasher", HASHERS)
 async def test_simple_hasher_sync(hasher):
     hashed = hasher.make_sync("hello")
@@ -50,6 +52,7 @@ def fixture_deprecated_hasher(hasher):
     return hasher.hashers[1]
 
 
+@pytest.mark.slow
 async def test_multi_hasher(hasher):
     with pytest.raises(RuntimeError):
         hasher.needs_update("foo")
@@ -59,6 +62,7 @@ async def test_multi_hasher(hasher):
     assert not hasher.needs_update(hashed)
 
 
+@pytest.mark.slow
 async def test_multi_hasher_update(hasher, deprecated_hasher):
     old_hash = await deprecated_hasher.make("hello")
     assert await hasher.verify("hello", old_hash)
