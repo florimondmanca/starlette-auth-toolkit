@@ -13,19 +13,18 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 
 - Database-agnostic.
 - User model-agnostic.
-- Built-in password hashing powered by [PassLib].
-- Hash migration support.
+- Password hashing and hash migration support.
 - Built-in support for common authentication flows, including Basic and Token authentication.
 - Support for multiple authentication backends.
 - Easy integration with [`orm`].
 
-[passlib]: https://passlib.readthedocs.io/en/stable/index.html
 [`orm`]: https://github.com/encode/orm
 
 **Contents**
 
 - [Installation](#installation)
 - [Quickstart](#quickstart)
+- [Dependencies](#dependencies)
 - [Base backends](#base-backends)
 - [Backends](#backends)
 - [Authenticating in views](#authenticating-in-views)
@@ -128,6 +127,14 @@ content-type: application/json
 ```
 
 For a real-world example, [see here](https://github.com/florimondmanca/starlette-auth-toolkit/blob/master/tests/apps/example.py).
+
+## Dependencies
+
+Like Starlette, `starlette-auth-toolkit` does not have any hard dependencies, but you can optionally install the following:
+
+- [`passlib`][passlib] - Required if you want to use password hashers.
+
+[passlib]: https://passlib.readthedocs.io/en/stable/index.html
 
 ## Base backends
 

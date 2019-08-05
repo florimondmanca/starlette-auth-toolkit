@@ -2,9 +2,14 @@ import secrets
 import string
 import typing
 
-import passlib.hash as _hashers
-from passlib.ifc import PasswordHash
 from starlette.concurrency import run_in_threadpool
+
+try:
+    import passlib.hash as _hashers
+    from passlib.ifc import PasswordHash
+except ImportError:  # pragma: no cover
+    _hashers = None  # type: ignore
+    PasswordHash = None  # type: ignore
 
 
 def generate_random_string(size: int = 32) -> str:
@@ -37,6 +42,9 @@ class BaseHasher:
 
 class Hasher(BaseHasher):
     def __init__(self, algorithm: str):
+        assert (
+            _hashers is not None
+        ), "'passlib' must be installed to use password hashers"
         self.algorithm = algorithm
         try:
             self._hasher: PasswordHash = getattr(_hashers, algorithm)

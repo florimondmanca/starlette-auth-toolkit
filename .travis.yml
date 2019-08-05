@@ -8,9 +8,14 @@ python:
   - "3.6"
   - "3.7"
 
-install:
-  - pip install -U pip
-  - pip install -r requirements.txt
+jobs:
+  include:
+    # Test optional dependencies.
+    - python: "3.7"
+      install: pip install .[dev]
+      script: pytest
+
+install: pip install -r requirements.txt
 
 script:
   - pytest

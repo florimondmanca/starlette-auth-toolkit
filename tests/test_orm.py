@@ -3,6 +3,8 @@ import os
 import pytest
 from starlette.testclient import TestClient
 
+pytest.importorskip("passlib")
+
 
 @pytest.fixture(name="client")
 def fixture_client():

@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format of this docu
 
 ### Changed
 
+- Dependency on PassLib is now optional.
 - Base backends were renamed:
   - `BasicAuthBackend` -> `BaseBasicAuth`
   - `BearerAuthBackend` -> `BaseTokenAuth`

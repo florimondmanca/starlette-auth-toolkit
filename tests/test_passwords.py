@@ -9,6 +9,7 @@ from starlette_auth_toolkit.cryptography import (
     Argon2Hasher,
 )
 
+pytest.importorskip("passlib")
 pytestmark = pytest.mark.asyncio
 
 
