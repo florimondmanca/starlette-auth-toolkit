@@ -11,11 +11,12 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 
 **Features**
 
-- Database-agnostic.
-- User model-agnostic.
-- Password hashing and hash migration support.
-- Built-in support for common authentication flows, including Basic and Token authentication.
+- Database- and user model-agnostic.
+- Authentication backends (including Basic and Token authentication).
+- Permissions (as a middleware or endpoint decorator).
+- Password hashers.
 - Support for multiple authentication backends.
+- Support for hash migration.
 - Easy integration with [`orm`].
 
 [`orm`]: https://github.com/encode/orm
@@ -28,6 +29,7 @@ Authentication backends and helpers for Starlette-based ASGI apps and frameworks
 - [Base backends](#base-backends)
 - [Backends](#backends)
 - [Authenticating in views](#authenticating-in-views)
+- [Permissions](#permissions)
 - [Password hashers](#password-hashers)
 
 ## Installation
@@ -299,6 +301,91 @@ async def logs_user_in(request):
     user = await auth.verify(username, password)
     # ...
 ```
+
+## Permissions
+
+Permissions check that an incoming request includes the required authentication scopes. This means that you can restrict routes (or even an entire app) to e.g. authenticated users only.
+
+Permissions are implemented as `PermissionsMiddleware`, a pure ASGI middleware. It requires `AuthenticationMiddleware` to be installed first, as shown in the following snippets.
+
+Permissions can be defined in two ways:
+
+- Globally using `PermissionsMiddleware`:
+
+```python
+from starlette_auth_toolkit.permissions import PermissionsMiddleware
+
+app.add_middleware(AuthenticationMiddleware, backend=...)
+app.add_middleware(PermissionsMiddleware, scopes=["authenticated"])
+```
+
+- Or on a per-route basis using the `requires` decorator:
+
+```python
+from starlette_auth_toolkit.permissions import requires
+
+app.add_middleware(AuthenticationMiddleware, backend=...)
+
+@requires("authenticated")
+@app.route("/dashboard")
+async def dashboard(request):
+    ...
+```
+
+By default, a 403 error response is returned when permissions are not granted. You can customize this, e.g. to hide information from unauthenticated users:
+
+```python
+app.add_middleware(
+    PermissionsMiddleware,
+    scopes=["authenticated"],
+    status_code=404,
+)
+
+# OR:
+@requires("authenticated", status_code=404)
+@app.route("/dashboard")
+async def dashboard(request):
+    ...
+```
+
+You can also redirect unauthenticated users to a different route:
+
+```python
+app.add_middleware(
+    PermissionsMiddleware,
+    scopes=["authenticated"],
+    redirect="/login",
+)
+
+# OR:
+@requires("authenticated", redirect="/login")
+@app.route("/dashboard")
+async def dashboard(request):
+    ...
+```
+
+Lastly, you can restrict permissions checks to certain HTTP methods:
+
+```python
+app.add_middleware(
+    PermissionsMiddleware,
+    scopes=["authenticated"],
+    methods=["post"],
+)
+
+# OR:
+@requires("authenticated", methods=["post"])
+@app.route("/dashboard", methods=["get", "post"])
+async def dashboard(request):
+    ...
+```
+
+### Custom permissions middleware
+
+For advanced use cases, subclass `PermissionsMiddleware` and override any of the following:
+
+- `.redirect_response(url: str)`: called when permissions were not granted and a `redirect` URL was defined.
+- `.unauthorized(self)`: called when permissions were not granted but no `redirect` URL was given. This would typically raise an HTTP exception of some kind. The configured status code is available as `self.status_code`.
 
 ## Password hashers
 
