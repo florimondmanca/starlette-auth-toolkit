@@ -1,3 +1,7 @@
+**Status**: development on this project is paused for now. Besides, the current implementation is very much Alpha.
+
+---
+
 # starlette-auth-toolkit
 
 [![travis](https://travis-ci.org/florimondmanca/starlette-auth-toolkit.svg?branch=master)](https://travis-ci.org/florimondmanca/starlette-auth-toolkit)
